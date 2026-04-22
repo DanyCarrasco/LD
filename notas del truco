@@ -1,0 +1,98 @@
+Como gana el jugador??
+cuando el jugador llega a los 30 puntos.
+Los primeros 15 puntos: son las malas.
+Los ultimos 15 puntos: son las buenas.
+
+un jugador "entra en las buenas" cuando alcanza o supera los 15 puntos.
+
+debemos preguntar si jugaran las malas o las buenas?? porque pueden realizar rondas hasta alcanzar las 15 o las 30.
+
+quienes juegan?? jugador y oponente
+
+Envido: se gana cuando el jugador consique logar 2 cartas del mismo palo cuya suma sea la mas alta.
+Se realiza en la primer mano y siempre antes del truco.
+Si tiene 2 cartas del mismo palo, se suma 20 su valor. Los sotas, caballos y rey valen 0 puntos
+
+Los sietes; cartas de mayor valor. Los ases; cartas de menor valor
+Debemos saber si estamos:
+    -En buenas: al menos un jugador ya tiene la mitad de puntos (los 15 puntos).
+    -En malas: ningun jugador ha llegado a la mitad de puntos.
+
+El jugador dice:
+-Envido
+    El oponente dice:
+    -quiero: si gana, obtiene 2 puntos el jugador
+    -no quiero: obtiene 1 punto el jugador
+    Envido:
+        El jugador dice:
+        -quiero: si gana, obtiene 4 puntos el oponente
+        -no quiero: obtiene 2 puntos el oponente
+        -Real envido:
+            El oponente dice:
+            -quiero: si gana, obtiene 7 puntos el jugador
+            -no quiero: obtiene 4 puntos el jugador
+            -Falta envido:
+                El jugador dice:
+                -quiero: si estan en las;
+                    -buenas: gana los puntos que le faltan para alzanzar los 30 puntos el jugador.
+                    -malas: gana los puntos que le faltan para alzanzar los 15 puntos el jugador.
+                -no quiero: obtiene 7 puntos el jugador.
+                -Irse al mazo (rendirse)
+            -Irse al mazo (rendirse)
+    -Irse al mazo (rendirse)
+
+-Real envido:
+    El oponente dice:
+    -quiero: si gana, obtiene 3 puntos el jugador
+    -no quiero: obtiene 1 punto el jugador
+    Falta envido:
+        El jugador dice:
+        -quiero: si estan en las;
+            -buenas: gana los puntos que le faltan para alzanzar los 30 puntos el jugador.
+            -malas: gana los puntos que le faltan para alzanzar los 15 puntos el jugador.
+        -no quiero: obtiene 3 puntos el oponente
+        -Irse al mazo (rendirse)
+    -Irse al mazo (rendirse)
+
+Falta envido:
+        -quiero: si estan en las;
+            -buenas: gana los puntos que le faltan para alzanzar los 30 puntos el jugador.
+            -malas: gana los puntos que le faltan para alzanzar los 15 puntos el jugador.
+        -no quiero: obtiene 1 puntos el jugador
+        -Irse al mazo (rendirse)
+
+-Irse al mazo (rendirse)
+
+Truco: se puede realizar en cualquier momento de la partida y lo cobra el ganador de la ronda
+
+El jugador dice:
+-Truco:
+    El oponente dice:
+    -quiero: si gana, obtiene 2 puntos el jugador
+    -no quiero: termina la mano y obtiene 1 punto el jugador
+    Retruco:
+        El jugador dice:
+        -quiero: si gana, obtiene 3 puntos el oponente
+        -no quiero: obtiene 2 punto el oponente
+        quiero vale 4:
+            El oponente dice:
+            -quiero: si gana, obtiene 4 puntos el jugador
+            -no quiero: obtiene 3 punto el jugador
+        -Irse al mazo (rendirse)
+    -Irse al mazo (rendirse)
+
+-Irse al mazo (rendirse)
+
+Situaciones: jugador A y jugador B
+    -jugador A gana primer mano, jugador A gana segunda mano: jugador A gana la ronda. Y viceversa con jugador B
+    -jugador A gana primer mano, jugador A empata segunda mano (empardar): jugador A gana la ronda. Y viceversa con jugador B
+    -jugador A gana primer mano, jugador B gana segunda mano, jugador A gana tercer mano: jugador A gana la ronda. Y viceversa con jugador B
+    -jugador A gana primer mano, jugador B gana segunda mano, jugador A empata tercer mano: jugador A gana la ronda. Y viceversa con jugador B.
+    -jugador A gana empata primer mano (empardar), jugador A empata segunda mano (empardar), jugador A empata tercer mano (empardar): jugador que es "mano" gana la ronda.
+    -jugador A empata primer mano (empardar), jugador A gana segunda mano: jugador A gana la ronda. y viceversa para el jugador B.
+
+Registrar cual jugador es mano.
+
+No se juega con flor, o se dice al principio de las rondas si se juegan con flor.
+
+Despues del quiero debo poner dos opciones, mostrar cartas o irse al mazo (rendirse)
