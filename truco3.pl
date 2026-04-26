@@ -259,4 +259,182 @@ truco-->
     jugar_truco.
 
 truco:-phrase(truco,[_],[_]).
+
+%Logica del envido.
+    %Le asignamos los valores a las cartas.
+
+valor_envido(_-rey, 0).
+valor_envido(_-caballo, 0).
+valor_envido(_-sota, 0).
+valor_envido(_-as, 1).
+valor_envido(_-N, N) :-
+    integer(N).
+
+%Calculamos los puntos si son del mismo palo.
+puntos_par_envido(Palo-N1, Palo-N2, Puntos) :-
+    valor_envido(Palo-N1, V1),
+    valor_envido(Palo-N2, V2),
+    Puntos is 20 + V1 + V2.
+
+%Vemos si son del mismo palo.
+puntos_par_envido(Palo1-_, Palo2-_, 0) :-
+    Palo1 \= Palo2.
+
+%Agarramos el puntaje maximo según el envido y las cartas que tenemos.
+puntos_envido([C1, C2, C3], Puntos) :-
+    puntos_par_envido(C1, C2, P12),
+    puntos_par_envido(C1, C3, P13),
+    puntos_par_envido(C2, C3, P23),
+    valor_envido(C1, V1),
+    valor_envido(C2, V2),
+    valor_envido(C3, V3),
+    max_list([P12, P13, P23, V1, V2, V3], Puntos).
+
+
+%Vemos cual seria el ganador segun el puntaje.
+ganador_envido(
+    jugador(Nombre1, Mano1, _, _),
+    jugador(Nombre2, Mano2, _, _),
+    Ganador
+) :-
+    puntos_envido(Mano1, P1),
+    puntos_envido(Mano2, P2),
+    format("~w tiene ~w puntos de envido~n", [Nombre1, P1]),
+    format("~w tiene ~w puntos de envido~n", [Nombre2, P2]),
+    (
+        P1 >= P2 ->
+        Ganador = Nombre1
+    ;
+        Ganador = Nombre2
+    ).
+
+
+%envido
+
+    %---------------- CADENA DE ENVIDO ----------------%
+
+cantar_envido -->
+    jugadores(Jugadores, Jugadores),
+    {
+        format("Desean cantar envido? si/no~n"),
+        read(Respuesta),
+        (
+            Respuesta = si ->
+                jugar_cadena_envido(Jugadores, [])
+        ;
+            format("No se canto envido~n")
+        )
+    }.
+
+
+% Si todavia no se canto nada, solo puede cantar e/r/f.
+jugar_cadena_envido(Jugadores, []) :-
+    format("Ingrese: e = envido / r = real_envido / f = falta_envido~n"),
+    read(Accion),
+    eleccion_envido(Accion, Jugadores, []).
+
+% Si ya hubo un canto, puede querer, no querer o subir.
+jugar_cadena_envido(Jugadores, Cantos) :-
+    Cantos \= [],
+    format("Cantos actuales: ~w~n", [Cantos]),
+    format("Ingrese: e = envido / r = real_envido / f = falta_envido / q = quiero / n = no_quiero~n"),
+    read(Accion),
+    eleccion_envido(Accion, Jugadores, Cantos).
+
+
+% El jugador canta e/r/f.
+% La ultima respuesta se guarda en la cabeza de la lista.
+
+eleccion_envido(Canto, Jugadores, Cantos) :-
+    member(Canto, [e, r, f]),
+    puede_responder(Cantos, Canto),
+    Cantos1 = [Canto | Cantos],
+    jugar_cadena_envido(Jugadores, Cantos1).
+
+% El jugador dice quiero.
+eleccion_envido(q, Jugadores, Cantos) :-
+    Cantos \= [],
+    puntos_envido_cantado(Cantos, Puntos),
+    resolver_envido_querido(Jugadores, Puntos).
+
+% El jugador dice no quiero.
+eleccion_envido(n, _Jugadores, Cantos) :-
+    Cantos \= [],
+    puntos_no_querido(Cantos, Puntos),
+    format("No querido. Se ganan ~w puntos.~n", [Puntos]).
+
+% Accion invalida.
+eleccion_envido(_, Jugadores, Cantos) :-
+    format("Accion invalida para esta cadena de envido.~n"),
+    jugar_cadena_envido(Jugadores, Cantos).
+
+
+% Cantos guarda la ultima respuesta en la cabeza.
+%
+% Ejemplos:
+% [e]       = se canto envido
+% [e,e]     = se canto envido + envido
+% [r,e]     = se canto envido + real envido
+% [f,r,e]   = se canto envido + real envido + falta envido
+
+% Primer canto posible.
+puede_responder([], e).
+puede_responder([], r).
+puede_responder([], f).
+
+% Si lo ultimo fue envido, se puede responder envido, real o falta.
+puede_responder([e | _], e).
+puede_responder([e | _], r).
+puede_responder([e | _], f).
+
+% Si lo ultimo fue real envido, solo se puede responder falta.
+puede_responder([r | _], f).
+
+% Si lo ultimo fue falta envido, no se puede cantar nada mas.
+
+
+
+puntos_envido_cantado([e], 2).
+puntos_envido_cantado([r], 3).
+puntos_envido_cantado([f], falta).
+
+puntos_envido_cantado([e,e], 4).
+puntos_envido_cantado([r,e], 5).
+puntos_envido_cantado([f,e], falta).
+
+puntos_envido_cantado([r,e,e], 7).
+puntos_envido_cantado([f,e,e], falta).
+puntos_envido_cantado([f,r,e], falta).
+puntos_envido_cantado([f,r,e,e], falta).
+
+
+
+puntos_no_querido([e], 1).
+puntos_no_querido([r], 1).
+puntos_no_querido([f], 1).
+
+puntos_no_querido([e,e], 2).
+puntos_no_querido([r,e], 2).
+puntos_no_querido([f,e], 2).
+
+puntos_no_querido([r,e,e], 4).
+puntos_no_querido([f,e,e], 4).
+puntos_no_querido([f,r,e], 5).
+puntos_no_querido([f,r,e,e], 7).
+
+
+%---------------- RESOLVER ENVIDO USANDO TUS PREDICADOS ----------------%
+
+resolver_envido_querido([J0, J1], Puntos) :-
+    ganador_envido(J0, J1, Ganador),
+    format("El ganador del envido es ~w~n", [Ganador]),
+    format("Se ganan ~w puntos.~n", [Puntos]).
+
+
+
+
+
     
+
+
+
