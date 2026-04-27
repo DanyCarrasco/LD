@@ -1,0 +1,27 @@
+Decision del jugador
+(q) = quiero
+(nq) = no quiero
+
+Situacion de la mano:
+t = truco
+rt = retruco
+v4 = vale 4
+
+Estructura de la ronda
+ronda(numero de la ronda, Lista de sus manos).
+ej:
+ronda(1, Manos); estan en la ronda 1. Despues se explica que es una mano
+
+Estructura de la mano
+mano(n° de la mano, jugadorMano (jugador que no repartio), situacion de la mano, decision del jugador, turno del siguiente jugador).
+ej:
+mano(1, jugadorA, rt, void, jugadorB).
+Estan en la mano 1, el jugadorA es el jugadorMano, cantaron retruco (jugadorA suponiendo), void = aun no hay respuesta al canto, le toca jugar al jugadorB.
+
+el jugadorB dice quiero, se actualiza la mano:
+mano(1, jugadorA, rt, (q), jugadorA).
+Se cambio el void por la respuesta del jugadorB; "quiero" representado en "(q)" y se cambia el "jugadorB" por "jugadorA" porque es su turno.
+
+cuando se termine de jugar la mano, se reinicia
+mano(3, jugadorA, rt, (q), jugadorA) ---> mano(1, jugadorB, void, void, jugadorB)
+Se reinicia el numero a "1", en el "jugadorMano" se cambia el "jugadorA" por "jugadorB" y el mismo "jugadorMano" sera el siguiente jugador que le toque jugar.
