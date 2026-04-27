@@ -202,18 +202,17 @@ set_rechazo(Jug) -->
     { select(ronda(Resultados, C, _), S0, S1),
       S = [ronda(Resultados, C, rechazo(Jug))|S1] }.
 
-% puede_cantar_estado(+Estado, +NuevoCanto)
+% puede_cantar(+NuevoCanto)//
 %
 % Solo se puede cantar si:
 %   1. la ronda no fue rechazada aun
 %   2. el canto pedido es valido
 %   3. el nuevo canto supera al actual
-puede_cantar_estado(S0, Nuevo) :-
-    select(ronda(_, CantoActual, none), S0, _),
-    es_canto(Nuevo),
-    canto_supera(Nuevo, CantoActual),
-    !.
-puede_cantar_estado(_, _) :- fail.
+puede_cantar(Nuevo) -->
+    state(S, S),
+    { select(ronda(_, CantoActual, none), S, _),
+      es_canto(Nuevo),
+      canto_supera(Nuevo, CantoActual) }.
 
 % =========================================================
 % RESOLVER CANTO
@@ -229,29 +228,21 @@ puede_cantar_estado(_, _) :- fail.
 %
 % Ese detalle corrige el bug original de stack overflow.
 resolver_canto_en_turno(J, Canto) -->
-    state(S, S),
-    {
-        ( es_canto(Canto),
-          puede_cantar_estado(S, Canto) ->
-            format("~w canta ~w~n", [J, Canto]),
-            rival(J, R),
-            pedir_respuesta(R, Resp)
-        ; writeln("Canto invalido o no permitido."),
-          Resp = invalido
-        )
-    },
-    ( { Resp == invalido } ->
-        []
-    ;
+    (   { es_canto(Canto) },
+        puede_cantar(Canto)
+    ->  { format("~w canta ~w~n", [J, Canto]),
+          rival(J, R) },
+        pedir_respuesta(R, Resp),
         resolver_respuesta_canto(J, R, Canto, Resp)
+    ;   { writeln("Canto invalido o no permitido.") }
     ).
 
-% pedir_respuesta(+Rival, -Respuesta)
+% pedir_respuesta(+Rival, -Respuesta)//
 %
 % Lee desde consola la respuesta del rival al canto.
-pedir_respuesta(Rival, Resp) :-
-    format("~w responde (acepta/rechaza/truco/retruco/vale4):~n", [Rival]),
-    read(Resp).
+pedir_respuesta(Rival, Resp) -->
+    { format("~w responde (acepta/rechaza/truco/retruco/vale4):~n", [Rival]),
+      read(Resp) }.
 
 % resolver_respuesta_canto(+Cantor, +Rival, +Canto, +Respuesta)//
 %
@@ -271,8 +262,8 @@ resolver_respuesta_canto(Cantor, Rival, Canto, Resp) -->
         set_rechazo(Cantor),
         { format("~w rechazo. ~w gana ~w puntos.~n", [Rival, Cantor, Pts]) }
     ; { es_canto(Resp), canto_supera(Resp, Canto) } ->
-        { format("~w resube a ~w~n", [Rival, Resp]),
-          pedir_respuesta(Cantor, Resp2) },
+        { format("~w resube a ~w~n", [Rival, Resp]) },
+        pedir_respuesta(Cantor, Resp2),
         resolver_respuesta_canto(Rival, Cantor, Resp, Resp2)
     ; { writeln("Respuesta invalida: rechazo por defecto."),
         puntos_por_rechazo(Canto, Pts) },
@@ -440,34 +431,31 @@ repartir_carta_a_cada_jugador([Jugador|Jugadores], [Jugador1|Jugadores1], [Carta
 % JUEGO COMPLETO
 % =========================================================
 
-% fin_partida(+Estado)
+% fin_partida//
 %
-% Predicado auxiliar normal, separado de la DCG para que la regla
-% jugar_truco//0 quede limpia y sin mezclar sintaxis.
-%
-% Este cambio tambien evita el error "callable expected" que aparecia
-% cuando se intentaba usar la regla DCG jugadores//2 dentro de { }.
-fin_partida(S) :-
-    select(jugadores([jugador(N1, _, P1), jugador(N2, _, P2)]), S, _),
-    number(P1),
-    number(P2),
-    (
-        P1 >= 2 ->
-        format("El jugador ~w gano la partida~n", [N1])
-    ;
-        P2 >= 2 ->
-        format("El jugador ~w gano la partida~n", [N2])
-    ).
+% Predicado DCG: lee el estado y verifica si alguno de los jugadores
+% alcanzo el puntaje objetivo, imprimiendo al ganador si es asi.
+fin_partida -->
+    state(S, S),
+    {
+        select(jugadores([jugador(N1, _, P1), jugador(N2, _, P2)]), S, _),
+        number(P1),
+        number(P2),
+        (
+            P1 >= 2 ->
+            format("El jugador ~w gano la partida~n", [N1])
+        ;
+            P2 >= 2 ->
+            format("El jugador ~w gano la partida~n", [N2])
+        )
+    }.
 
 % jugar_truco//
 %
 % Primera clausula:
 %   si la partida ya termino, corta aca.
-%
-% Notar que solo LEEMOS el estado, por eso usamos state(S, S).
 jugar_truco -->
-    state(S, S),
-    { fin_partida(S) },
+    fin_partida,
     !.
 
 % Segunda clausula:
