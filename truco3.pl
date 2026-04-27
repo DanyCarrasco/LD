@@ -1,34 +1,10 @@
 :- use_module(library(random)).
 :- use_module(library(clpfd)).
 
-
-carta(Suite-Number) :-
-    member(Suite, [oros, espadas, bastos, copas]),
-    member(Number, [rey, caballo, sota,7, 6, 5, 4, 3, 2,as]).
+% modulos propios %
+:- use_module(mazoTruco, [carta/1, valor_carta/2]).	
 
 
-valor_carta(espadas-as, 14).
-valor_carta(bastos-as, 13).
-
-valor_carta(espadas-7, 12).
-valor_carta(oros-7, 11).
-
-valor_carta(_-3, 10).
-valor_carta(_-2, 9).
-
-valor_carta(copas-as, 8).
-valor_carta(oros-as, 8).
-
-valor_carta(_-rey, 7).
-valor_carta(_-caballo, 6).
-valor_carta(_-sota, 5).
-
-valor_carta(copas-7, 4).
-valor_carta(bastos-7, 4).
-
-valor_carta(_-6, 3).
-valor_carta(_-5, 2).
-valor_carta(_-4, 1).
 
 state(S), [S] --> [S]. %Lee el estado
 state(S0, S), [S] --> [S0]. %lee el estado S0 y lo remplaza por el estado S
