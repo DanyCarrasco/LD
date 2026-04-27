@@ -4,7 +4,7 @@
 
 carta(Suite-Number) :-
     member(Suite, [oros, espadas, bastos, copas]),
-    member(Number, [rey, caballo, sota,7, 6, 5, 4, 3, 2,as]).
+    member(Number, [12, 11, 10,7, 6, 5, 4, 3, 2,as]).
 
 
 valor_carta(espadas-as, 14).
@@ -19,9 +19,9 @@ valor_carta(_-2, 9).
 valor_carta(copas-as, 8).
 valor_carta(oros-as, 8).
 
-valor_carta(_-rey, 7).
-valor_carta(_-caballo, 6).
-valor_carta(_-sota, 5).
+valor_carta(_-12, 7).
+valor_carta(_-11, 6).
+valor_carta(_-10, 5).
 
 valor_carta(copas-7, 4).
 valor_carta(bastos-7, 4).
@@ -244,6 +244,7 @@ eliminar_carta(Jugador0, Carta, Jugador) :-
 %caso base: no hay jugadores para que selecciones sus cartas
 
 elegir_carta([],[])-->[].
+
 elegir_carta([Jugador|Jugadores],[Carta|CartasSeleccionadas])-->
     {
         Jugador=jugador(Nombre,Mano,_,_),
@@ -261,28 +262,17 @@ truco-->
 
 truco:-phrase(truco,[_],[_]).
 
-% ============================================================
 % LOGICA DEL ENVIDO
-% ============================================================
  
-% ------------------------------------------------------------
-% VALORES DE CARTA PARA EL ENVIDO
-% valor_envido(+Carta, -Valor):
-%   Figuras valen 0, as vale 1, numeros valen su numero.
-% ------------------------------------------------------------
- 
-valor_envido(_-rey,    0).
-valor_envido(_-caballo, 0).
-valor_envido(_-sota,   0).
+valor_envido(_-12,    0).
+valor_envido(_-11, 0).
+valor_envido(_-10,   0).
 valor_envido(_-as,     1).
 valor_envido(_-N,      N) :- integer(N).
  
-% ------------------------------------------------------------
+% 
 % PUNTOS DE UN PAR DE CARTAS
-% puntos_par_envido(+C1, +C2, -Puntos):
-%   Si son del mismo palo: 20 + valor1 + valor2.
-%   Si son de distinto palo: 0.
-% ------------------------------------------------------------
+
  
 puntos_par_envido(Palo-N1, Palo-N2, Puntos) :-
     valor_envido(Palo-N1, V1),
@@ -292,11 +282,9 @@ puntos_par_envido(Palo-N1, Palo-N2, Puntos) :-
 puntos_par_envido(Palo1-_, Palo2-_, 0) :-
     Palo1 \= Palo2.
  
-% ------------------------------------------------------------
+% 
 % PUNTOS TOTALES DE ENVIDO DE UNA MANO
-% puntos_envido(+[C1,C2,C3], -Puntos):
-%   Calcula el maximo entre todos los pares y cartas individuales.
-% ------------------------------------------------------------
+
  
 puntos_envido([C1, C2, C3], Puntos) :-
     puntos_par_envido(C1, C2, P12),
@@ -307,13 +295,8 @@ puntos_envido([C1, C2, C3], Puntos) :-
     valor_envido(C3, V3),
     max_list([P12, P13, P23, V1, V2, V3], Puntos).
  
-% ------------------------------------------------------------
 % PUNTOS AL CANTAR QUIERO
-% puntos_envido_cantado(+Cantos, -Puntos):
-%   Cantos es una lista con la historia de cantos (el ultimo
-%   canto esta en la cabeza). Puntos puede ser un numero o
-%   el atomo 'falta' (indica falta envido).
-% ------------------------------------------------------------
+
  
 puntos_envido_cantado([e],       2).
 puntos_envido_cantado([r],       3).
@@ -326,12 +309,8 @@ puntos_envido_cantado([f,e,e],   falta).
 puntos_envido_cantado([f,r,e],   falta).
 puntos_envido_cantado([f,r,e,e], falta).
  
-% ------------------------------------------------------------
 % PUNTOS AL CANTAR NO QUIERO
-% puntos_no_querido(+Cantos, -Puntos):
-%   Puntos que gana quien canto (el que propuso) si el otro
-%   no quiere.
-% ------------------------------------------------------------
+
  
 puntos_no_querido([e],       1).
 puntos_no_querido([r],       1).
@@ -344,11 +323,9 @@ puntos_no_querido([f,e,e],   4).
 puntos_no_querido([f,r,e],   5).
 puntos_no_querido([f,r,e,e], 7).
  
-% ------------------------------------------------------------
+
 % CANTOS VALIDOS SEGUN HISTORIAL
-% puede_responder(+CantosAnteriores, +NuevoCanto):
-%   Define que cantos son validos segun lo que ya se canto.
-% ------------------------------------------------------------
+
  
 % Primer canto: cualquiera de los tres.
 puede_responder([], e).
@@ -367,18 +344,13 @@ puede_responder([r|_], f).
 % Despues de falta envido: no se puede subir mas.
  
  
-% ------------------------------------------------------------
-% SUMAR PUNTOS AL GANADOR EN EL ESTADO
-% sumar_puntos_envido(+NombreGanador, +Puntos, +Jugadores0, -Jugadores1):
-%   Recorre la lista de jugadores y le suma Puntos al jugador
-%   cuyo nombre es NombreGanador.
-% ------------------------------------------------------------
- 
 sumar_puntos_envido(_, _, [], []).
 sumar_puntos_envido(Nombre, Puntos,
         [jugador(Nombre, Mano, P, M)|Resto],
         [jugador(Nombre, Mano, P1, M)|Resto]) :-
     P1 is P + Puntos.
+
+
 sumar_puntos_envido(Nombre, Puntos,
         [jugador(Otro, Mano, P, M)|Resto],
         [jugador(Otro, Mano, P, M)|Resto1]) :-
@@ -386,14 +358,7 @@ sumar_puntos_envido(Nombre, Puntos,
     sumar_puntos_envido(Nombre, Puntos, Resto, Resto1).
  
  
-% ------------------------------------------------------------
-% RESOLVER ENVIDO QUERIDO
-% resolver_envido_querido(+J0, +J1, +Cantos, +Jugadores, -Jugadores1):
-%   Compara los puntos de envido de ambos jugadores,
-%   determina el ganador y le suma los puntos al estado.
-%   Si los cantos dicen 'falta', el ganador gana los puntos
-%   que le faltan al perdedor para llegar a 15.
-% ------------------------------------------------------------
+% RESOLVER ENVIDO 
  
 resolver_envido_querido(J0, J1, Cantos, Jugadores, Jugadores1) :-
     J0 = jugador(Nombre0, Mano0, PuntosActuales0, _),
@@ -421,18 +386,8 @@ resolver_envido_querido(J0, J1, Cantos, Jugadores, Jugadores1) :-
     sumar_puntos_envido(Ganador, PuntosFinales, Jugadores, Jugadores1).
  
  
-% ------------------------------------------------------------
 % CADENA DE ENVIDO (predicado auxiliar, no DCG)
-% jugar_cadena_envido(
-%       +JugadorQueResponde, +JugadorQuePropu,
-%       +Cantos, +Jugadores, -Jugadores1):
-%   Maneja el dialogo de cantos de envido entre dos jugadores.
-%   JugadorQueResponde: el que tiene el turno ahora.
-%   JugadorQuePropu:    el que hizo el ultimo canto.
-%   Cantos:             historial de cantos (el mas reciente primero).
-%   Jugadores:          lista completa de jugadores para actualizar puntos.
-%   Jugadores1:         lista actualizada despues de resolver el envido.
-% ------------------------------------------------------------
+
  
 % Primer turno: le toca al Proponente hacer el primer canto.
 % Solo puede cantar e/r/f (no puede querer ni no querer todavia).
@@ -456,16 +411,12 @@ jugar_cadena_envido(Respondedor, Proponente, Cantos, Jugadores, Jugadores1) :-
     procesar_envido(Accion, Respondedor, Proponente, Cantos, Jugadores, Jugadores1).
  
  
-% ------------------------------------------------------------
-% PROCESAR ACCION DE ENVIDO
-% procesar_envido(+Accion, +Respondedor, +Proponente,
-%                 +Cantos, +Jugadores, -Jugadores1):
-%   Ejecuta la accion elegida por el jugador en su turno.
-% ------------------------------------------------------------
+
  
 % El jugador activo sube el canto (e/r/f) si es un canto valido.
 % Jugador activo: quien tiene el turno en este momento.
 % Despues de cantar, los roles se invierten para el siguiente turno.
+
 procesar_envido(Canto, JugadorActivo, OtroJugador, Cantos, Jugadores, Jugadores1) :-
     member(Canto, [e, r, f]),
     puede_responder(Cantos, Canto),
@@ -512,18 +463,8 @@ procesar_envido(_, JugadorActivo, OtroJugador, Cantos, Jugadores, Jugadores1) :-
     jugar_cadena_envido(JugadorActivo, OtroJugador, Cantos, Jugadores, Jugadores1).
  
  
-% ------------------------------------------------------------
-% CANTAR ENVIDO (DCG)
-% cantar_envido: punto de entrada para el envido desde el flujo
-%   principal del juego. Lee el estado, le pregunta al jugador1
-%   si quiere cantar, y si acepta inicia la cadena de envido.
-%   Actualiza los puntos en el estado al terminar.
-% ------------------------------------------------------------
- 
-% cantar_envido: le pregunta primero a jugador1 si desea cantar.
-% Si jugador1 no quiere, le pregunta a jugador2.
-% El que decide cantar primero es el Proponente.
-% El otro jugador es el Respondedor (debera querer, no querer o subir).
+% CANTAR ENVIDO 
+
 cantar_envido -->
     jugadores(P0, P1),
     {
