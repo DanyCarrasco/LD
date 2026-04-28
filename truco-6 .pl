@@ -1,44 +1,7 @@
 :- use_module(library(random)).
 :- use_module(library(clpfd)).
 
-% carta(?Carta)
-%
-% Predicado generador y verificador de las cartas validas del mazo espanol
-% usado por este programa. La representacion elegida para cada carta es
-% Palo-Numero, por ejemplo espadas-as u oros-7.
-%
-% Si Carta viene libre, el predicado enumera todas las combinaciones posibles
-% entre los cuatro palos y los valores admitidos. Si Carta viene instanciada,
-% comprueba que pertenezca a ese universo.
-carta(Suite-Number) :-
-    member(Suite, [oros, espadas, bastos, copas]),
-    member(Number, [rey, caballo, sota, 7, 6, 5, 4, 3, 2, as]).
-
-% valor_carta(+Carta, -Valor)
-%
-% Define la jerarquia de cartas del Truco. Un valor numerico mayor significa
-% una carta mas fuerte. Los hechos estan escritos de mayor a menor prioridad
-% para reflejar directamente el orden del juego.
-%
-% Algunas reglas usan el patron _-Numero o _-Figura para indicar "cualquier
-% palo con ese numero". Las cartas especiales, como espadas-as u oros-7,
-% aparecen con hechos especificos porque rompen la jerarquia generica.
-valor_carta(espadas-as, 14).
-valor_carta(bastos-as, 13).
-valor_carta(espadas-7, 12).
-valor_carta(oros-7, 11).
-valor_carta(_-3, 10).
-valor_carta(_-2, 9).
-valor_carta(copas-as, 8).
-valor_carta(oros-as, 8).
-valor_carta(_-rey, 7).
-valor_carta(_-caballo, 6).
-valor_carta(_-sota, 5).
-valor_carta(copas-7, 4).
-valor_carta(bastos-7, 4).
-valor_carta(_-6, 3).
-valor_carta(_-5, 2).
-valor_carta(_-4, 1).
+:- use_module(mazoTruco).
 
 % state(-Estado)//
 %
@@ -218,21 +181,7 @@ es_canto_envido(envido).
 es_canto_envido(real_envido).
 es_canto_envido(falta_envido).
 
-% valor_envido_numero(+Numero, -Valor)
-%
-% Traduce el numero o figura de una carta al valor que aporta al envido.
-% Las figuras valen 0, el as vale 1 y las cartas numericas mantienen su
-% propio valor dentro del rango permitido por las reglas.
-valor_envido_numero(rey, 0).
-valor_envido_numero(caballo, 0).
-valor_envido_numero(sota, 0).
-valor_envido_numero(as, 1).
-valor_envido_numero(2, 2).
-valor_envido_numero(3, 3).
-valor_envido_numero(4, 4).
-valor_envido_numero(5, 5).
-valor_envido_numero(6, 6).
-valor_envido_numero(7, 7).
+
 
 % puede_cantar_envido_estado(+NuevoCanto)//
 %
@@ -388,7 +337,7 @@ pedir_respuesta_envido(Rival, Resp) -->
     {
         member(jugadores(P0), S),
         member(jugador(Rival, Mano, _), P0),
-        format("~w responde. Mano: ~w~n", [Rival, Mano]),
+        format("~w responde.\nMano: ~w~n", [Rival, Mano]),
         format("Respuesta (quiero/no_quiero/envido/real_envido/falta_envido):~n", []),
         read(Resp)
     }.
@@ -623,7 +572,7 @@ obtener_ganador([P1, P2], Resultados, GanadorFinal) :-
 
 % mezclar(+Lista, -ListaMezclada)
 %
-% Implementa una mezcla recursiva sencilla. En cada paso:
+% Implementa una mezcla recursiva sencilla. En cada paso:responde.
 % 1. calcula la longitud de la lista restante;
 % 2. elige un indice aleatorio;
 % 3. extrae el elemento de ese indice;
@@ -864,7 +813,7 @@ turno_jugador(Nombre, CartaJugada, TerminaRonda) -->
     {
         member(jugadores(P0), S0),
         member(jugador(Nombre, Mano, _), P0),
-        format("~w turno. Mano: ~w~n", [Nombre, Mano]),
+        format("~w turno.\nMano: ~w~n", [Nombre, Mano]),
         format("Elegi accion (jugar/cantar):~n", [])
     },
     {
@@ -1028,7 +977,7 @@ eliminar_carta(Jugador0, Carta, Jugador) :-
 truco -->
     start,
     mezclar_cartas,
-    crear_jugadores([jugador1, jugador2]),
+    crear_jugadores([jugador2, jugador1]),
     jugar_truco.
 
 % truco
@@ -1037,6 +986,7 @@ truco -->
 % manualmente. Arranca con una lista de un solo elemento anonimo y espera
 % terminar tambien con una lista de un unico estado final.
 truco :-
+    write('\33[2J\33[H'),
     phrase(truco, [_], [_]).
 
 % imprimir_lista(+Lista)

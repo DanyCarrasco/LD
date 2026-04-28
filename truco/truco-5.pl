@@ -1,120 +1,15 @@
 :- use_module(library(random)).
 :- use_module(library(clpfd)).
 
-% =========================================================
-% TRUCO EN PROLOG CON DCG + ESTADO EXPLICITO
-% =========================================================
-%
-% La idea general del programa es modelar una partida de Truco
-% usando una DCG como "maquina de estados".
-%
-% En una DCG normal se transforma una lista de tokens.
-% Aca reutilizamos esa tecnica para transformar una lista
-% que contiene UN UNICO elemento: el estado completo del juego.
-%
-% Ejemplo conceptual:
-%
-%   EstadoAntes  = [mazo(...), jugadores(...), ronda(...)]
-%   EstadoDespues = [mazo(...), jugadores(...), ronda(...)]
-%
-% Entonces un no terminal DCG como:
-%
-%   algo -->
-%       state(S0, S),
-%       { ... construir S a partir de S0 ... }.
-%
-% significa:
-%   "leo el estado actual S0 y lo reemplazo por el nuevo estado S".
-%
-% Cuando solo queremos LEER el estado, sin modificarlo, usamos:
-%
-%   state(S, S)
-%
-% o bien el atajo:
-%
-%   state(S)
-%
-% Eso fue justamente una de las fuentes del error que aparecia:
-% si se usaba state(S0, S) solo para leer, entonces S quedaba libre
-% y el estado se corrompia.
 
-% =========================================================
-% CARTAS Y JERARQUIA
-% =========================================================
+:- use_module(mazoTruco,[carta/1, valor_carta/2]).
 
-% carta(?Carta)
-%
-% Genera todas las cartas del mazo espanol usado en el juego.
-% La representacion elegida es:
-%
-%   Palo-Numero
-%
-% por ejemplo:
-%   espadas-as
-%   oros-7
-%   bastos-rey
-%
-% "Suite" aca funciona como nombre de variable para el palo.
-carta(Suite-Number) :-
-    member(Suite, [oros, espadas, bastos, copas]),
-    member(Number, [rey, caballo, sota, 7, 6, 5, 4, 3, 2, as]).
 
-% valor_carta(+Carta, -Valor)
 %
-% Define la jerarquia del Truco.
-% Cuanto mayor el numero, mas fuerte la carta.
-%
-% Notar que hay patrones generales como _-3 o _-rey:
-% eso significa "cualquier palo con ese numero".
-valor_carta(espadas-as, 14).
-valor_carta(bastos-as, 13).
-valor_carta(espadas-7, 12).
-valor_carta(oros-7, 11).
-valor_carta(_-3, 10).
-valor_carta(_-2, 9).
-valor_carta(copas-as, 8).
-valor_carta(oros-as, 8).
-valor_carta(_-rey, 7).
-valor_carta(_-caballo, 6).
-valor_carta(_-sota, 5).
-valor_carta(copas-7, 4).
-valor_carta(bastos-7, 4).
-valor_carta(_-6, 3).
-valor_carta(_-5, 2).
-valor_carta(_-4, 1).
-
-% =========================================================
-% PRIMITIVAS DE ESTADO PARA LA DCG
-% =========================================================
-
-% state(-S)//
-%
-% Lee el estado actual sin modificarlo.
-%
-% Ejemplo de uso:
-%   state(S)
-%
-% equivale a decir:
-%   "el estado de entrada y el de salida son el mismo".
-state(S), [S] --> [S].
-
-% state(-S0, +S)//
-%
-% Lee el estado actual S0 y lo reemplaza por el nuevo estado S.
-%
-% Este es el predicado base para cualquier actualizacion.
+(S), [S] --> [S].
 state(S0, S), [S] --> [S0].
 
-% jugadores(-JugadoresAntes, +JugadoresDespues)//
-%
-% Atajo para actualizar especificamente la estructura jugadores(...)
-% dentro del estado.
-%
-% Esta regla:
-%   1. toma el estado actual S0
-%   2. extrae jugadores(P0)
-%   3. lo reemplaza por jugadores(P)
-%   4. deja el resto del estado intacto
+
 jugadores(P0, P), [S] -->
     [S0],
     { select(jugadores(P0), S0, S1), S = [jugadores(P)|S1] }.
