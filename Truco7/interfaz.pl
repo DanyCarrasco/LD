@@ -13,12 +13,16 @@
 
 % pide una opcion valida
 entrada_teclado(Mensaje, Opciones, Resultado):-
-    format('~w (~w)\n', [Mensaje, Opciones]),
-    catch(read(Entrada),_, Entrada = error),
-    (member(Entrada, Opciones) ->
-    Resultado = Entrada, !;
-    write('Opcion no valida!\n'),
-entrada_teclado(Mensaje, Opciones, Resultado)
+    Opciones \= [],
+    repeat,
+        format('~w (~w)\n', [Mensaje, Opciones]),
+        read_line_to_string(user_input, Linea),
+        catch(term_string(Entrada, Linea),_, Entrada = error),
+        (member(Entrada, Opciones) ->
+            Resultado = Entrada, !
+        ;
+            write('Opcion no valida!\n'),
+            fail
 ).
 
 % imprime una lista
