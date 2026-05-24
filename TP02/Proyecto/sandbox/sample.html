@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SWI-Prolog WASM Demo</title>
+</head>
+<body>
+    <h1>SWI-Prolog WASM in the Browser</h1>
+    <button id="runBtn" disabled>Loading Prolog...</button>
+    <div id="output"></div>
+
+    <!-- 1. Load the main Emscripten wrapper script -->
+    <script src="swipl-web.js"></script>
+
+    <script>
+        // 2. Configure SWIPL configuration stubs
+        window.SWIPL = {
+            arguments: [],
+            locateFile: (file) => file // Assumes .wasm and .data are in the same folder
+        };
+
+        let prologInstance;
+
+        // 3. Initialize SWIPL (Returns a Promise)
+        SWIPL().then((Module) => {
+            // Get the high-level Prolog interface class
+            prologInstance = Module.prolog;
+
+            // Enable our test button once loaded
+            const btn = document.getElementById('runBtn');
+            btn.textContent = "Run Prolog Query";
+            btn.disabled = false;
+
+            // Load inline or database predicates
+            prologInstance.call("assertz(parent(albert, bob))");
+            prologInstance.call("assertz(parent(bob, charlie))");
+            prologInstance.call("assertz(ancestor(X, Y) :- parent(X, Y))");
+            prologInstance.call("assertz(ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y))");
+        });
+
+        // 4. Trigger queries on button click
+        document.getElementById('runBtn').addEventListener('click', () => {
+            const outDiv = document.getElementById('output');
+            outDiv.innerHTML = "<h3>Query Results:</h3>";
+
+            // Open a query to find all ancestors of charlie
+            const q = prologInstance.query("ancestor(Anc, charlie)");
+
+            let answer;
+            while ((answer = q.next()) && !answer.done) {
+                // Binding variables map directly to JavaScript objects
+                outDiv.innerHTML += `<p>Ancestor: <b>${answer.value.Anc}</b></p>`;
+            }
+            q.close(); // Always close your queries to free memory hooks!
+        });
+    </script>
+</body>
+</html>
