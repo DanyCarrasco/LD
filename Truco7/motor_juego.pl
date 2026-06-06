@@ -155,7 +155,14 @@ jugar_mano -->
         { Termino2 == si } ->
           []
       ;
-        resolver_mano_cartas([J1, J2], [Carta1b, Carta2b])
+        state(SActual, SActual),
+        {
+            member(jugadores(JugadoresActuales), SActual)
+        },
+        resolver_mano_cartas(
+            JugadoresActuales,
+            [Carta1b, Carta2b]
+        )
       )
     ).
 
