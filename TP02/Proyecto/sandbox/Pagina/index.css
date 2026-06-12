@@ -1,0 +1,103 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: black;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),url('./assets/mesaMadera.avif');
+  
+}
+
+
+.grid-container {
+  display: grid;
+  /* Crea 30 columnas de igual tamaño */
+  grid-template-columns: 1fr 2fr 2fr 2fr 5fr 6fr 5fr 2fr 2fr 2fr 1fr;
+  /* Crea 16 filas de igual tamaño */
+  grid-template-rows: 1fr 11fr 2fr 1fr 1fr;
+  /* Espacio opcional entre las celdas (ej. 2 píxeles) */
+  gap: 2px; 
+  /* Define una altura si quieres que las filas se estiren */
+  height: 100vh; 
+}
+
+
+.mesa {
+    display: grid;
+
+    grid-template-columns: 7.5fr 2fr  0.5fr 2fr 0.5fr 2fr 7.5fr;
+    grid-template-rows: 3fr 0.75fr 3fr 0.5fr 3fr 0.75fr 3fr 1fr;
+
+
+    grid-column-start: 3;
+    grid-column-end: 10;
+
+    grid-row-start: 1;
+    grid-row-end: 5;
+    margin-top: 1%;
+    background: radial-gradient(circle, rgb(102, 200, 22), rgb(26, 58, 1));
+    background-size: cover;
+    background-repeat: repeat;
+    border-radius: 15px; 
+}
+
+.puntaje {
+    grid-column-start: var(--p);
+    grid-column-end: span 2;
+
+    grid-row-start: 2;
+    grid-row-end: 4;
+    background: radial-gradient(circle, rgb(152, 151, 151), rgb(96, 96, 95));
+
+    display: grid;
+    grid-template-rows: .5fr 1fr 5.5fr 5.5fr .5fr;
+    grid-template-columns: 1fr;
+    border-radius: 15px; 
+}
+
+.puntajeNos1 {
+    grid-column-start: 1;
+    grid-column-end: 1;
+
+    grid-row-start: 3;
+    grid-row-end: 4;
+    background-color: rgb(255, 0, 0);
+}
+
+
+
+
+.jugadas {
+    grid-column-start: 5;
+    grid-column-end: 6;
+
+    grid-row-start: 3;
+    grid-row-end: 6;
+    /* background-color:  orange; */
+    margin-bottom: 20px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+button{
+    height: 100%;
+    font-size: 1em;
+    background: radial-gradient(circle, rgb(97, 76, 22), rgb(89, 27, 21));
+    color: aliceblue;
+    border-radius: 5%;
+    transition: transform 0.15s ease;
+}
+
+button:hover{
+    transform: scale(1.1);
+}
+
+.mano {
+    grid-column-start: 7;
+    grid-column-end: 8;
+
+    grid-row-start: 3;
+    grid-row-end: 6;
+    background-color:  yellow;
+    margin-bottom: 20px;
+}

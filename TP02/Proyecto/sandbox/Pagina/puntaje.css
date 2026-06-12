@@ -1,0 +1,16 @@
+@font-face {
+  font-family: 'Belwe Bold';
+  /* SOLUCIÓN: Quita la barra \ y deja solo el espacio dentro de las comillas */
+  src: url('./assets/fonts/Belwe_Bold/Belwe_Bold.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+.texto {
+    grid-row: 2;
+    text-align: center;
+    color: rgb(64, 64, 64);
+    font-family: 'Belwe Bold';
+    font-size: 2em;
+}

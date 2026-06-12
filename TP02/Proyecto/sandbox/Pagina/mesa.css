@@ -1,0 +1,26 @@
+.carta {
+    /* Multiplica x por 2 y suma 2 para calcular la línea de inicio */
+    grid-column-start: calc(2 + (2 * var(--x)));
+    /* Cambia a span para que ocupe exactamente 1 o 2 celdas de ancho */
+    grid-column-end: span 1;
+
+    /* Multiplica y por 2 y suma 3 para calcular la línea de inicio */
+    grid-row-start: calc(3 + (2 * var(--y)));
+    /* Cambia a span para que ocupe exactamente una celda de alto */
+    grid-row-end: span 1;
+
+    background-color: rgb(0, 34, 255);
+}
+
+.jugador {
+    grid-column-start: 3;
+    grid-column-end: span 3;
+    margin-top: 10px;
+    grid-row-start: var(--p);
+    grid-row-end: span 1;
+    background-color: red;
+    background-image: var(--img);
+    background-size: cover;
+    border-radius: 20%;
+}
+

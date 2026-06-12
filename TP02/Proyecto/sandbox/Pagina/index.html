@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="index.css">
+     <link rel="stylesheet" href="mesa.css">
+     <link rel="stylesheet" href="puntaje.css">
+    <title>Document</title>
+</head>
+<body>
+    <div class="grid-container">
+       <div class="mesa">
+       <div class="jugador" style="--p: 0; --img: url('./assets/gaucho1.png')"></div>
+       <div class="jugador" style="--p: 7; --img: url('./assets/gaucho2.png')"></div>
+
+      <div class="carta" style="--x: 0; --y: 0"></div>
+      <div class="carta" style="--x: 1; --y: 0"></div>
+      <div class="carta" style="--x: 2; --y: 0"></div>
+      <div class="carta" style="--x: 0; --y: 1"></div>
+      <div class="carta" style="--x: 1; --y: 1"></div>
+      <div class="carta" style="--x: 2; --y: 1"></div>
+
+       </div>
+       <div class="puntaje" style="--p: 2">
+           <h1 class="texto">NOS</h1> 
+       </div>
+       <div class="puntaje" style="--p: 9">
+            <h1 class="texto">LOS</h1> 
+       </div>
+       <div class="jugadas" >
+        <button>Envido</button>
+        <button>Real Envido</button>
+        <button>Falta Envido</button>
+        <button>Truco!</button>
+       </div>
+       <div class="mano"></div>
+    </div>
+</body>
+</html>
