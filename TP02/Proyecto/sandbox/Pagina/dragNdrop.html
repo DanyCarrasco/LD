@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Múltiples Cartas 3D con Zona de Juego</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background-color: #1a1a2e;
+      overflow: hidden;
+      perspective: 1000px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* NUEVA: Zona donde se deben jugar las cartas */
+    #zonaDrop {
+      width: 80%;
+      height: 350px;
+      border: 3px dashed rgba(226, 184, 66, 0.4);
+      border-radius: 20px;
+      background-color: rgba(255, 255, 255, 0.03);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-top: 40px;
+      transition: background-color 0.3s, border-color 0.3s;
+      
+      /* Evita que los eventos del mouse de la carta bloqueen la lectura de la zona */
+      position: relative; 
+    }
+
+    /* Clase común para todas las cartas */
+    .carta {
+      width: 140px;
+      height: 210px;
+      background: linear-gradient(135deg, #1f4068 0%, #162447 100%);
+      background-image: var(--img);
+      background-size: cover;
+      background-position: center;
+      border-radius: 12px;
+      position: absolute; /* Cambiará dinámicamente al entrar al contenedor */
+      cursor: grab;
+      user-select: none;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      transform-origin: center top; 
+      
+      --rotX: 0deg;
+      --rotY: 0deg;
+
+      transform: rotateX(var(--rotX)) rotateY(var(--rotY)) scale(1);
+      transition: transform 0.2s ease-out, box-shadow 0.2s, z-index 0s;
+      z-index: 1;
+    }
+
+    /* Animación de retorno */
+    .carta.regresando {
+      transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+                  top 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+                  transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+                  box-shadow 0.4s;
+    }
+
+    /* Cuando la carta ya fue jugada en el contenedor, pasa a ser estática y ordenada */
+    .carta.jugada {
+      position: relative !important;
+      left: auto !important;
+      top: auto !important;
+      transform: none !important;
+    }
+
+    .carta:hover {
+      z-index: 500; 
+      transform: rotateX(var(--rotX)) rotateY(var(--rotY)) scale(1.15);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Bloqueamos el hover si ya está jugada en la zona central */
+    .carta.jugada:hover {
+      transform: scale(1.05); 
+    }
+
+    .carta:active {
+      cursor: grabbing;
+      z-index: 1000; 
+      transform: rotateX(var(--rotX)) rotateY(var(--rotY)) scale(1.25);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Contenedor del Tablero / Zona de juego -->
+  <div id="zonaDrop"></div>
+
+  <!-- Cartas en su posición inicial (Abajo, estilo mano de juego) -->
+  <div class="carta" style="left: 25%; top: 70%; --img: url('./Carta/img/b-1.png')"></div>
+  <div class="carta" style="left: 45%; top: 70%; --img: url('./Carta/img/e-1.png')"></div>
+  <div class="carta" style="left: 65%; top: 70%; --img: url('./Carta/img/c-1.png')"></div>
+
+  <script>
+    let cartaActiva = null;
+    let offsetX = 0, offsetY = 0;
+    let posicionAnteriorX = 0;
+    let posicionAnteriorY = 0;
+
+    let posicionInicialLeft = "";
+    let posicionInicialTop = "";
+
+    const cartas = document.querySelectorAll('.carta');
+    const zonaDrop = document.getElementById('zonaDrop');
+
+    cartas.forEach(carta => {
+      carta.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+
+        carta.classList.remove('regresando');
+
+        // Si la carta ya estaba jugada en el tablero y la volvemos a agarrar,
+        // la sacamos temporalmente del contenedor para poder moverla de forma absoluta
+        if (carta.classList.contains('jugada')) {
+          carta.classList.remove('jugada');
+          const rect = carta.getBoundingClientRect();
+          carta.style.left = `${rect.left}px`;
+          carta.style.top = `${rect.top}px`;
+          document.body.appendChild(carta);
+        }
+
+        cartaActiva = carta; 
+        
+        posicionInicialLeft = cartaActiva.style.left;
+        posicionInicialTop = cartaActiva.style.top;
+
+        offsetX = e.clientX - cartaActiva.getBoundingClientRect().left;
+        offsetY = e.clientY - cartaActiva.getBoundingClientRect().top;
+        
+        posicionAnteriorX = e.clientX;
+        posicionAnteriorY = e.clientY;
+      });
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!cartaActiva) return;
+
+      let nuevaX = e.clientX - offsetX;
+      let nuevaY = e.clientY - offsetY;
+      cartaActiva.style.left = `${nuevaX}px`;
+      cartaActiva.style.top = `${nuevaY}px`;
+
+      let velocidadX = e.clientX - posicionAnteriorX;
+      let velocidadY = e.clientY - posicionAnteriorY;
+
+      let maximaInclinacion = 25; 
+      let rotacionY = Math.max(Math.min(velocidadX * 2, maximaInclinacion), -maximaInclinacion);
+      let rotacionX = Math.max(Math.min(-velocidadY * 2, maximaInclinacion), -maximaInclinacion);
+
+      cartaActiva.style.setProperty('--rotX', `${rotacionX}deg`);
+      cartaActiva.style.setProperty('--rotY', `${rotacionY}deg`);
+
+      posicionAnteriorX = e.clientX;
+      posicionAnteriorY = e.clientY;
+    });
+
+    // CANCELACIÓN CON CLIC DERECHO
+    document.addEventListener('mousedown', (e) => {
+      if (e.button === 2 && cartaActiva) {
+        const cartaALimpiar = cartaActiva;
+        regresarASitioOriginal(cartaALimpiar);
+        
+        setTimeout(() => { cartaActiva = null; }, 10);
+      }
+    });
+
+    document.addEventListener('contextmenu', (e) => {
+      if (cartaActiva || e.target.classList.contains('carta')) {
+        e.preventDefault();
+      }
+    });
+
+    // SOLTAR CARTA (LÓGICA DE DETECCIÓN DE ZONA)
+    document.addEventListener('mouseup', (e) => {
+      if (e.button !== 0 || !cartaActiva) return;
+
+      // Ocultamos la carta un microsegundo para leer qué elemento real hay debajo del mouse
+      cartaActiva.style.visibility = 'hidden';
+      let elementoAbajo = document.elementFromPoint(e.clientX, e.clientY);
+      cartaActiva.style.visibility = 'visible';
+
+      // Buscamos si el elemento de abajo es la zona de drop o está contenido en ella
+      if (elementoAbajo && (elementoAbajo === zonaDrop || zonaDrop.contains(elementoAbajo))) {
+        // ¡ÉXITO! La carta entra al tablero
+        cartaActiva.style.setProperty('--rotX', '0deg');
+        cartaActiva.style.setProperty('--rotY', '0deg');
+        cartaActiva.classList.add('jugada');
+        
+        // La movemos físicamente al interior del div contenedor
+        zonaDrop.appendChild(cartaActiva);
+        cartaActiva = null;
+      } else {
+        // ¡FALLO! No se soltó en la zona correcta, regresa suavemente abajo
+        regresarASitioOriginal(cartaActiva);
+        cartaActiva = null;
+      }
+    });
+
+    // Función auxiliar para reusar el retorno suave
+    function regresarASitioOriginal(elemento) {
+      elemento.classList.add('regresando');
+      elemento.style.left = posicionInicialLeft;
+      elemento.style.top = posicionInicialTop;
+      elemento.style.setProperty('--rotX', '0deg');
+      elemento.style.setProperty('--rotY', '0deg');
+      
+      setTimeout(() => {
+        elemento.classList.remove('regresando');
+      }, 400);
+    }
+  </script>
+
+</body>
+</html>

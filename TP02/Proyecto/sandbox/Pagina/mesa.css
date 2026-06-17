@@ -1,4 +1,4 @@
-.carta {
+.cartas {
     /* Multiplica x por 2 y suma 2 para calcular la línea de inicio */
     grid-column-start: calc(2 + (2 * var(--x)));
     /* Cambia a span para que ocupe exactamente 1 o 2 celdas de ancho */
@@ -18,9 +18,23 @@
     margin-top: 10px;
     grid-row-start: var(--p);
     grid-row-end: span 1;
-    background-color: red;
+    background-color: rgb(255, 255, 255);
     background-image: var(--img);
-    background-size: cover;
+    background-size: 100% 100%;
+    background-position: center center;
+    background-repeat: no-repeat;
     border-radius: 20%;
+    border: 10px solid transparent;
+    border-image: url('./assets/marcos/jugador.png') 20 round;
+
+    z-index: 1;
 }
 
+.drop {
+    grid-column-start: 1;
+    grid-column-end: 8;
+
+    grid-row-start: 1;
+    grid-row-end: 6;
+    z-index: 2;
+}

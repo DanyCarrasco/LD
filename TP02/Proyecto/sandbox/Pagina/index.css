@@ -3,7 +3,7 @@ body {
   padding: 0;
   background-color: black;
   background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),url('./assets/mesaMadera.avif');
-  
+  overflow: hidden;
 }
 
 
@@ -33,37 +33,10 @@ body {
     grid-row-start: 1;
     grid-row-end: 5;
     margin-top: 1%;
-    background: radial-gradient(circle, rgb(102, 200, 22), rgb(26, 58, 1));
-    background-size: cover;
+    background: url('./assets/textures/mesa.png'), radial-gradient(circle, rgb(102, 200, 22), rgb(26, 58, 1)) ;
     background-repeat: repeat;
-    border-radius: 15px; 
+    border-radius: 15px;
 }
-
-.puntaje {
-    grid-column-start: var(--p);
-    grid-column-end: span 2;
-
-    grid-row-start: 2;
-    grid-row-end: 4;
-    background: radial-gradient(circle, rgb(152, 151, 151), rgb(96, 96, 95));
-
-    display: grid;
-    grid-template-rows: .5fr 1fr 5.5fr 5.5fr .5fr;
-    grid-template-columns: 1fr;
-    border-radius: 15px; 
-}
-
-.puntajeNos1 {
-    grid-column-start: 1;
-    grid-column-end: 1;
-
-    grid-row-start: 3;
-    grid-row-end: 4;
-    background-color: rgb(255, 0, 0);
-}
-
-
-
 
 .jugadas {
     grid-column-start: 5;
@@ -81,8 +54,8 @@ body {
 
 button{
     height: 100%;
-    font-size: 1em;
-    background: radial-gradient(circle, rgb(97, 76, 22), rgb(89, 27, 21));
+    font-size: 1.5em;
+    background: url('./assets/textures/cuero.png'),radial-gradient(circle, rgb(63, 30, 11), rgb(102, 50, 20));
     color: aliceblue;
     border-radius: 5%;
     transition: transform 0.15s ease;

@@ -3,6 +3,7 @@
 :- use_module(library(http/websocket)).
 
 % Esta sera la base de datos dinamica en memoria
+% Seria jugador(id, ws)
 :- dynamic jugador_ws/2.
 
 % Los argumentos son Goal, Option, Request
