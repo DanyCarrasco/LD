@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Prueba SWI-Prolog WASM</title>
+  <style>
+    body { font-family: monospace; background: #1a1a2e; color: #eee; padding: 30px; }
+    #resultado { font-size: 1.3em; margin-top: 20px; padding: 15px; background: #222; border-radius: 8px; }
+    .ok    { color: #4caf50; }
+    .error { color: #f44336; }
+  </style>
+</head>
+<body>
+
+  <h1>Prueba SWI-Prolog WASM</h1>
+  <div id="resultado">Cargando Prolog...</div>
+
+  <!-- Carga el bundle de SWI-Prolog WASM -->
+  <script src="swipl/swipl-bundle.js"></script>
+
+  <script>
+    const resultadoDiv = document.getElementById('resultado');
+
+    async function main() {
+      try {
+        // Crea la instancia de Prolog (esto tarda un par de segundos)
+        const swipl = await SWIPL({ arguments: ["-q"] });
+        console.log("Prolog cargado:", swipl);
+
+        // Query de prueba bien simple
+        const query = "member(X, [a, b, c]).";
+        const primeraSolucion = swipl.prolog.query(query).once();
+
+        console.log("Resultado crudo:", primeraSolucion);
+
+        resultadoDiv.innerHTML = `
+          <span class="ok">✅ Prolog WASM funciona!</span><br>
+          Query: <code>${query}</code><br>
+          X = <code>${primeraSolucion.X}</code>
+        `;
+      } catch (err) {
+        console.error("Error cargando Prolog:", err);
+        resultadoDiv.innerHTML = `<span class="error">❌ Error: ${err.message}</span>`;
+      }
+    }
+
+    main();
+  </script>
+
+</body>
+</html>

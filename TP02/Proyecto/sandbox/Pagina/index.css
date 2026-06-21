@@ -14,9 +14,9 @@ body {
   /* Crea 16 filas de igual tamaño */
   grid-template-rows: 1fr 11fr 2fr 1fr 1fr;
   /* Espacio opcional entre las celdas (ej. 2 píxeles) */
-  gap: 2px; 
+  gap: 2px;
   /* Define una altura si quieres que las filas se estiren */
-  height: 100vh; 
+  height: 100vh;
 }
 
 
@@ -73,4 +73,26 @@ button:hover{
     grid-row-end: 6;
     background-color:  yellow;
     margin-bottom: 20px;
+}
+
+.mensajes {
+    grid-column-start: 4;
+    grid-column-end: 9;
+    grid-row-start: 5;
+    grid-row-end: 6;
+    color: aliceblue;
+    text-align: center;
+    font-size: 1.1em;
+    padding: 8px;
+    min-height: 1.5em;
+}
+
+.jugadas button {
+    margin-bottom: 8px;
+}
+
+.jugadas button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
 }

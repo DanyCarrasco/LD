@@ -27,14 +27,14 @@
     border: 10px solid transparent;
     border-image: url('./assets/marcos/jugador.png') 20 round;
 
-    z-index: 1;
+    /* z-index: 1; */
 }
 
 .drop {
     grid-column-start: 1;
     grid-column-end: 8;
 
-    grid-row-start: 1;
-    grid-row-end: 6;
+    grid-row-start: 2;
+    grid-row-end: 7;
     z-index: 2;
 }

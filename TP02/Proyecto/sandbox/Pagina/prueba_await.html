@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Prueba: Prolog esperando un click (await/2)</title>
+  <style>
+    body { font-family: monospace; background: #1a1a2e; color: #eee; padding: 30px; }
+    #log { font-size: 1em; margin-top: 20px; padding: 15px; background: #222; border-radius: 8px; white-space: pre-wrap; min-height: 150px; }
+    .ok    { color: #4caf50; }
+    .error { color: #f44336; }
+    .info  { color: #87ceeb; }
+    button { font-size: 1.2em; padding: 10px 20px; margin: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <h1>Prolog esperando un click humano</h1>
+  <p>Prolog va a "pausarse" hasta que apretes uno de estos botones:</p>
+
+  <div id="botones">
+    <button data-valor="truco">truco</button>
+    <button data-valor="retruco">retruco</button>
+    <button data-valor="vale4">vale4</button>
+  </div>
+
+  <div id="log">Cargando Prolog...</div>
+
+  <script src="swipl/swipl-bundle.js"></script>
+
+  <script>
+    const logDiv = document.getElementById('log');
+    function log(msg, clase = '') {
+      logDiv.innerHTML += `<div class="${clase}">${msg}</div>`;
+    }
+
+    // ------------------------------------------------------------
+    // Esta variable global guarda la funcion "resolve" de la
+    // Promise pendiente. Cuando el usuario hace click en un boton,
+    // llamamos a esta funcion para "despertar" a Prolog.
+    // ------------------------------------------------------------
+    let resolverPendiente = null;
+
+    // Esta funcion JS crea una Promise que NO se resuelve sola:
+    // se resuelve solo cuando el usuario hace click en un boton
+    // (ver el addEventListener mas abajo).
+    function esperarClickHumano() {
+      return new Promise((resolve) => {
+        resolverPendiente = resolve;
+        log('⏳ Prolog esta esperando que hagas click en un boton...', 'info');
+      });
+    }
+
+    // Exponemos la funcion al objeto global "window" para que
+    // Prolog (via :=/2) pueda llamarla como si fuera una funcion JS normal.
+    window.esperarClickHumano = esperarClickHumano;
+
+    // Cuando se hace click en cualquier boton, resolvemos la Promise
+    // pendiente con el valor del boton.
+    document.querySelectorAll('#botones button').forEach(boton => {
+      boton.addEventListener('click', () => {
+        if (resolverPendiente) {
+          const valor = boton.dataset.valor;
+          log(`🖱️ Click detectado: "${valor}"`, 'info');
+          resolverPendiente(valor);   // <-- esto "despierta" a Prolog
+          resolverPendiente = null;
+        }
+      });
+    });
+
+    async function main() {
+      try {
+        const swipl = await SWIPL({ arguments: ["-q"] });
+        log('✅ Prolog inicializado', 'ok');
+
+        // Definimos un predicado Prolog que usa await/2 para esperar
+        // la Promise devuelta por nuestra funcion JS.
+        const codigoPrueba = `
+          :- use_module(library(wasm)).
+
+          pedir_canto(Resultado) :-
+              P := esperarClickHumano(),
+              await(P, Resultado).
+        `;
+        swipl.FS.writeFile('/prueba.pl', codigoPrueba);
+        await swipl.prolog.query("consult('/prueba.pl')").once();
+        log('✅ Predicado pedir_canto/1 cargado', 'ok');
+
+        log('--- Ejecutando pedir_canto(X) ---', 'info');
+
+        // IMPORTANTE: para que await/2 funcione dentro de Prolog,
+        // tenemos que invocar la query con forEach (no con .once()),
+        // porque forEach es el modo "asincrono" que permite yield/resume.
+        await swipl.prolog.forEach("pedir_canto(X)", (resultado) => {
+          log(`✅ Prolog recibio: X = "${resultado.X}"`, 'ok');
+          log('🎉 La query Prolog se completo exitosamente!', 'ok');
+        });
+
+      } catch (err) {
+        console.error(err);
+        log(`❌ Error: ${err.message}`, 'error');
+      }
+    }
+
+    main();
+  </script>
+
+</body>
+</html>

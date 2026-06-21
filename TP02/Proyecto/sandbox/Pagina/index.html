@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="stylesheet" href="index.css">
-     <link rel="stylesheet" href="mesa.css">
-     <link rel="stylesheet" href="carta.css">
-     <link rel="stylesheet" href="puntaje.css">
+     <link rel="stylesheet" href="./index.css">
+     <link rel="stylesheet" href="./mesa.css">
+     <link rel="stylesheet" href="./carta.css">
+     <link rel="stylesheet" href="./puntaje.css">
     <title>Document</title>
 </head>
 <body>
@@ -34,14 +34,18 @@
             <div id="malas-nos" class="zona-fosforos malas"></div>
     <div id="buenas-nos" class="zona-fosforos buenas"></div>
        </div>
-       <div class="jugadas" >
-        <button>Envido</button>
-        <button>Real Envido</button>
-        <button>Falta Envido</button>
-        <button>Truco!</button>
+       <div class="jugadas" id="zonaAcciones">
+        <!-- Los botones se generan dinamicamente desde JS,
+             segun lo que Prolog este pidiendo en cada momento -->
        </div>
+       <div id="zonaMensajes" class="mensajes"></div>
+
        <!-- <div class="mano"></div> -->
     </div>
+    <script src="swipl/swipl-bundle.js"></script>
+    <script src="prolog_bridge.js"></script>
+    <script src="iniciar_prolog.js"></script>
     <script src="./Carta/script.js"></script>
+
 </body>
 </html>

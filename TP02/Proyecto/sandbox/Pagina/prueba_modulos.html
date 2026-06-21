@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Prueba: cargar archivos .pl reales</title>
+  <style>
+    body { font-family: monospace; background: #1a1a2e; color: #eee; padding: 30px; }
+    #resultado { font-size: 1.1em; margin-top: 20px; padding: 15px; background: #222; border-radius: 8px; white-space: pre-wrap; }
+    .ok    { color: #4caf50; }
+    .error { color: #f44336; }
+    .info  { color: #87ceeb; }
+  </style>
+</head>
+<body>
+
+  <h1>Prueba: cargar config.pl, mazoTruco.pl, etc.</h1>
+  <div id="resultado">Cargando Prolog...</div>
+
+  <script src="swipl/swipl-bundle.js"></script>
+
+  <script>
+    const resultadoDiv = document.getElementById('resultado');
+    function log(msg, clase = '') {
+      resultadoDiv.innerHTML += `<div class="${clase}">${msg}</div>`;
+    }
+
+    // Lista de archivos .pl que vamos a cargar, EN ORDEN de dependencia
+    // (los que no dependen de otros, primero)
+    const archivos = [
+      'config.pl',
+      'mazoTruco.pl',
+      'gestor_estado.pl',
+      'sistema_cantos.pl'
+      // interfaz.pl y motor_juego.pl los dejamos afuera por ahora
+      // porque interfaz.pl usa entrada_teclado (bloqueante, lo vamos a reescribir)
+    ];
+
+    async function main() {
+      try {
+        resultadoDiv.innerHTML = '';
+        log('Iniciando Prolog WASM...', 'info');
+        const swipl = await SWIPL({ arguments: ["-q"] });
+        log('✅ Prolog inicializado', 'ok');
+
+        // Por cada archivo .pl: lo descargamos por fetch y lo escribimos
+        // en el sistema de archivos virtual que usa el WASM (Module.FS)
+        for (const nombre of archivos) {
+          log(`Descargando prolog/${nombre} ...`, 'info');
+          const resp = await fetch(`prolog/${nombre}`);
+          if (!resp.ok) throw new Error(`No se pudo descargar ${nombre} (HTTP ${resp.status})`);
+          const texto = await resp.text();
+
+          // Escribimos el archivo dentro del filesystem virtual de Emscripten
+          swipl.FS.writeFile(`/${nombre}`, texto);
+          log(`  → escrito en filesystem virtual: /${nombre}`, 'info');
+
+          // Lo consultamos (equivalente a swipl> consult(nombre)).
+          await swipl.prolog.query(`consult('/${nombre}')`).once();
+          log(`✅ ${nombre} cargado y consultado`, 'ok');
+        }
+
+        log('--- Todos los modulos cargados ---', 'ok');
+
+        // Query de prueba sobre TU codigo real: valor_carta/2 de mazoTruco.pl
+        log('Probando: valor_carta(e-1, X)', 'info');
+        const resultado = await swipl.prolog.query("mazoTruco:valor_carta(e-1, X)").once();
+        log(`Resultado: X = ${JSON.stringify(resultado.X)}`, 'ok');
+
+        // Otra prueba: puntaje_objetivo/1 de config.pl
+        log('Probando: puntaje_objetivo(X)', 'info');
+        const resultado2 = await swipl.prolog.query("config:puntaje_objetivo(X)").once();
+        log(`Resultado: X = ${JSON.stringify(resultado2.X)}`, 'ok');
+
+      } catch (err) {
+        console.error(err);
+        log(`❌ Error: ${err.message}`, 'error');
+      }
+    }
+
+    main();
+  </script>
+
+</body>
+</html>
