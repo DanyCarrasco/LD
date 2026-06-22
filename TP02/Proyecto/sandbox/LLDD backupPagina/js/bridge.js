@@ -156,6 +156,9 @@ window.enviarManoRival = (jugador, manoStr) => {
     Network.send('repartir_mano', { jugador: jugador, mano: manoStr });
 };
 window.pedirJugadaAlUsuario = () => new Promise(resolve => window.resolverJugada = resolve);
-window.PrologBridge.notificarJugada = (val) => Bridge.notificarJugada(val);
+// NOTA: no reasignar window.PrologBridge.notificarJugada aquí.
+// window.PrologBridge === Bridge (ver línea de arriba), así que Bridge.notificarJugada
+// ya está expuesto tal cual. Reasignarlo a "(val) => Bridge.notificarJugada(val)"
+// hacía que la función se llamara a sí misma infinitamente (recursión infinita).
 
 Bridge.init();
