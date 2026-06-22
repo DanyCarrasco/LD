@@ -1,0 +1,40 @@
+@font-face {
+  font-family: 'Belwe Bold';
+  /* SOLUCIÓN: Quita la barra \ y deja solo el espacio dentro de las comillas */
+  src: url('./assets/fonts/Belwe_Bold/Belwe_Bold.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.puntaje {
+    grid-column-start: var(--p);
+    grid-column-end: span 2;
+
+    grid-row-start: 2;
+    grid-row-end: 4;
+    background: url('./assets/textures/puntaje.png'), radial-gradient(circle, rgb(152, 151, 151), rgb(96, 96, 95));
+    background-repeat: repeat;
+    background-size: 20px auto;
+    display: grid;
+    grid-template-rows: 0.5fr 1fr 8fr 8fr 1fr;
+    grid-template-columns: 1fr;
+    border-radius: 15px;
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+
+.texto {
+    grid-row: 2;
+    margin: 0;
+    text-align: center;
+    color: rgb(64, 64, 64);
+    font-family: 'Belwe Bold';
+    font-size: 2em;
+}
+
+.malas{
+  background-color: rgba(73, 73, 73, 0.629);
+  grid-column-start: 1;
+  grid-row-start: 3;
+  grid-row-end: 5;
+}

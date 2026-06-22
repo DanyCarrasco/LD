@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="./index.css">
+     <link rel="stylesheet" href="./mesa.css">
+     <link rel="stylesheet" href="./carta.css">
+     <link rel="stylesheet" href="./puntaje.css">
+    <title>Document</title>
+</head>
+<body>
+    <div class="grid-container">
+        <div class="mesa">
+            <div id="zonaDrop" class="drop"></div>
+            <div id="rival"  class="jugador" style="--p: 0"></div>
+            <div id="yo" class="jugador" style="--p: 7"></div>
+
+            <div class="cartas" style="--x: 0; --y: 0"></div>
+            <div class="cartas" style="--x: 1; --y: 0"></div>
+            <div class="cartas" style="--x: 2; --y: 0"></div>
+            <div class="cartas" style="--x: 0; --y: 1"></div>
+            <div class="cartas" style="--x: 1; --y: 1"></div>
+            <div class="cartas" style="--x: 2; --y: 1"></div>
+
+       </div>
+
+       <div class="puntaje" style="--p: 2">
+           <h1 class="texto">Yo</h1>
+           <div id="malas-nos" class="zona-fosforos malas"></div>
+       </div>
+       <div class="puntaje" style="--p: 9">
+            <h1 class="texto">Rival</h1>
+            <div id="malas-nos" class="zona-fosforos malas"></div>
+       </div>
+       <div class="jugadas" id="zonaAcciones">
+        <!-- Los botones se generan dinamicamente desde JS,
+             segun lo que Prolog este pidiendo en cada momento -->
+       </div>
+       <div id="zonaMensajes" class="mensajes"></div>
+
+       <!-- <div class="mano"></div> -->
+    </div>
+<script src="swipl/swipl-bundle.js"></script>
+
+<script type="module" src="./js/network.js"></script>
+<script type="module" src="./js/interaccion_3d.js"></script>
+<script type="module" src="./js/ui.js"></script>
+<script type="module" src="./js/bridge.js"></script>
+
+<script type="module" src="./js/cartas.js"></script>
+<script type="module" src="./js/iniciar_prolog.js"></script>
+
+</body>
+</html>
