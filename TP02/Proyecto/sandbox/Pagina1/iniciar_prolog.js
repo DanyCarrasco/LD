@@ -45,7 +45,7 @@ async function iniciarProlog() {
     // (porque el WebSocket conecto antes de que termine de cargar),
     // lo procesamos ahora que es seguro.
     if (window.miNombrePendiente) {
-        avisarMiJugadorAProlog(window.miNombrePendiente);
+        await avisarMiJugadorAProlog(window.miNombrePendiente);
         window.miNombrePendiente = null;
     }
 

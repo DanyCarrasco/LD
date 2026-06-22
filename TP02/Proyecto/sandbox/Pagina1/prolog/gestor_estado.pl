@@ -15,6 +15,7 @@
 
 ]).
 
+:- use_module(library(wasm)).
 :- use_module(config, [estado_envido_inicial/1, estado_cantos_Truco/1]).
 :- use_module(mazoTruco, [mezclar/2]).
 
@@ -115,7 +116,16 @@ sumar_puntos_a_jugador(Jug, Pts) -->
     state(S0, S),
     { select(jugadores(P0), S0, S1),
       maplist(sumar_si_corresponde(Jug, Pts), P0, P1),
-      S = [jugadores(P1)|S1] }.
+      S = [jugadores(P1)|S1],
+      notificar_puntajes(P1) }.
+
+% avisa al JS (uno por jugador) cual es el puntaje actual,
+% para que pintarFosforos() redibuje las tranqueras.
+notificar_puntajes([]).
+notificar_puntajes([jugador(Nombre, _Mano, Puntos)|Resto]) :-
+    atom_string(Nombre, NombreStr),
+    _ := actualizarPuntaje(NombreStr, Puntos),
+    notificar_puntajes(Resto).
 
 % auxiliar para sumar puntos
 sumar_si_corresponde(Jug, Pts, jugador(Jug, Mano, Puntos0), jugador(Jug, Mano, Puntos)) :-

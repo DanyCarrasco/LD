@@ -49,13 +49,13 @@ ws.onopen = () => {
 
 let ambosListos = false;   // true cuando el relay confirmo 2 jugadores
 
-ws.onmessage = (event) => {
+ws.onmessage = async (event) => {
     const msg = JSON.parse(event.data);
     console.log('Mensaje recibido del relay:', msg);
 
     if (msg.tipo === 'unido') {
         mostrarMensaje(`Conectado como ${msg.jugador}. Avisale a Prolog...`);
-        avisarMiJugadorAProlog(msg.jugador);
+        await avisarMiJugadorAProlog(msg.jugador);
     }
     else if (msg.tipo === 'listos') {
         mostrarMensaje(`Listos: ${msg.jugadores.join(' y ')}.`);
@@ -262,6 +262,24 @@ function alertaOpcionInvalida(valor) {
     console.warn('Opcion invalida recibida:', valor);
     zonaMensajes.textContent = `Opción inválida: "${valor}", intentá de nuevo.`;
 }
+
+// ============================================================
+//  actualizarPuntaje(nombreJugador, puntos)
+//
+//  La llama Prolog (gestor_estado.pl, notificar_puntajes/1)
+//  cada vez que a un jugador se le suman puntos. Traduce el
+//  puntaje total a malas/buenas y redibuja las tranqueras de
+//  fosforos correspondientes (definidas en fosforos.js).
+// ============================================================
+function actualizarPuntaje(nombreJugador, puntos) {
+    const malas = Math.min(puntos, 15);
+    const buenas = Math.max(puntos - 15, 0);
+
+    pintarFosforos(`malas-${nombreJugador === 'jugador1' ? 'j1' : 'j2'}`, malas);
+    pintarFosforos(`buenas-${nombreJugador === 'jugador1' ? 'j1' : 'j2'}`, buenas);
+}
+window.actualizarPuntaje = actualizarPuntaje;
+
 
 // Exponemos las funciones globalmente para que Prolog las encuentre
 window.mostrarOpciones = mostrarOpciones;
