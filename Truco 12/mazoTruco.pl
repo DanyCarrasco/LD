@@ -1,4 +1,4 @@
-:- module(mazoTruco, [
+﻿:- module(mazoTruco, [
     carta/1,
     valor_carta/2,
     valor_envido_numero/2,
@@ -87,4 +87,3 @@ carta_alta([Carta1, Carta2], Resultado) :-
     ;   P2 #> P1 -> Resultado = Carta2
     ;   P1 #= P2 -> Resultado = parda
     ).
-

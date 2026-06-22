@@ -1,4 +1,4 @@
-:- module(clienteia, [main/0]).
+﻿:- module(clienteia, [main/0]).
 :- use_module(library(http/http_ssl_plugin)).
 :- use_module(library(http/websocket)).
 :- use_module(library(http/http_client)).
@@ -44,10 +44,6 @@ api_key(Clave) :-
     -> true
     ).
 
-% ------------------------------------------------------------------
-% recepcion de mensajes del servidor
-% ------------------------------------------------------------------
-
 % espera un mensaje del websocket y lo envia a procesar
 escuchar_mensajes(WebSocket) :-
     ws_receive(WebSocket, Message),
@@ -75,10 +71,6 @@ es_control(Data, Term) :-
     sub_string(Data, 0, _, _, "error("),
     catch(term_string(Term, Data), _, fail).
 es_control("juego terminado", juego_terminado).
-
-% ------------------------------------------------------------------
-% respuesta automatica de la ia
-% ------------------------------------------------------------------
 
 % ejecuta la accion correspondiente al comando del servidor
 manejar_control(WebSocket, prompt(Mensaje, Opciones)) :-
@@ -121,10 +113,6 @@ elegir_opcion(_Mensaje, Opciones, Eleccion) :-
 
 % extrae el primer elemento de la lista para salir del paso
 elegir_respaldo([Primera | _], Primera).
-
-% ------------------------------------------------------------------
-% llamada a gemini
-% ------------------------------------------------------------------
 
 % orquesta toda la peticion post al modelo de lenguaje
 consultar_llm(Mensaje, Opciones, Eleccion) :-
@@ -194,7 +182,7 @@ construir_payload(Modelo, Instrucciones, Consulta, Payload) :-
 
 % define el prompt maestro de una sola linea sin saltos
 instrucciones_sistema(
-"Sos un jugador experto y calculador de truco argentino. Tu objetivo es elegir la mejor estrategia para ganar analizando tu mano, el historial, las cartas jugadas y el marcador. REGLAS DEL JUEGO: Palos: e=espada, b=basto, o=oro, c=copa. Jerarquía (mayor a menor): e-1, b-1, e-7, o-7, cualquier 3, cualquier 2, c-1 u o-1, 12, 11, 10, c-7 o b-7, 6, 5, 4. Envido: Las figuras valen 0. Dos cartas del mismo palo suman 20 más sus valores nominales. REGLA ESTRICTA DE RESPUESTA (CRÍTICO): Recibirás una lista de 'opciones permitidas'. Tu respuesta debe ser ÚNICA Y EXCLUSIVAMENTE el texto exacto de una de esas opciones. PROHIBIDO: No agregues saludos, explicaciones, ni justificaciones. No uses formato Markdown (ni negritas, ni bloques de código). No uses comillas ni signos de puntuación extra. No pidas opiniones ni hagas preguntas. Ejemplo: Si las opciones son [jugar, cantar] y decides cantar, tu respuesta completa y absoluta debe ser: cantar"
+"Sos un jugador experto y calculador de truco argentino. Tu objetivo es elegir la mejor estrategia para ganar analizando tu mano, el historial, las cartas jugadas y el marcador. REGLAS DEL JUEGO: Palos: e=espada, b=basto, o=oro, c=copa. JerarquÃ­a (mayor a menor): e-1, b-1, e-7, o-7, cualquier 3, cualquier 2, c-1 u o-1, 12, 11, 10, c-7 o b-7, 6, 5, 4. Envido: Las figuras valen 0. Dos cartas del mismo palo suman 20 mÃ¡s sus valores nominales. REGLA ESTRICTA DE RESPUESTA (CRÃTICO): RecibirÃ¡s una lista de 'opciones permitidas'. Tu respuesta debe ser ÃšNICA Y EXCLUSIVAMENTE el texto exacto de una de esas opciones. PROHIBIDO: No agregues saludos, explicaciones, ni justificaciones. No uses formato Markdown (ni negritas, ni bloques de cÃ³digo). No uses comillas ni signos de puntuaciÃ³n extra. No pidas opiniones ni hagas preguntas. Ejemplo: Si las opciones son [jugar, cantar] y decides cantar, tu respuesta completa y absoluta debe ser: cantar"
 ).
 
 % une el historial las opciones y el pedido en el texto final
@@ -266,10 +254,6 @@ normalizar_eleccion(Bruto, Eleccion) :-
 % extrae el texto de un termino sin escapar las comillas
 termino_como_string(Termino, Texto) :-
     term_string(Termino, Texto, [quoted(false)]).
-
-% ------------------------------------------------------------------
-% historial local
-% ------------------------------------------------------------------
 
 % guarda una linea nueva en memoria borrando las mas viejas
 guardar_en_historial(Dato) :-

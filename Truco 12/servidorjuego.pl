@@ -1,4 +1,4 @@
-:- module(servidorjuego, [main/0]).
+﻿:- module(servidorjuego, [main/0]).
 
 :- dynamic rival/2.
 :- dynamic socket_jugador/2.
@@ -30,7 +30,6 @@ main :-
     format('Servidor de Truco escuchando en puerto 8316...~n', []),
     esperar_fin_juego.
 
-% expone el websocket del juego
 :- http_handler(root(ws), http_upgrade_to_websocket(procesar_jugador, []), [spawn([])]).
 
 % procesa la conexion de un jugador

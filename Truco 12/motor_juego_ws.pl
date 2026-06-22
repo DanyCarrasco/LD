@@ -1,4 +1,4 @@
-:- module(motor_juego_ws, [
+﻿:- module(motor_juego_ws, [
     truco//0,
     start//0,
     crear_jugadores//1,
@@ -47,7 +47,7 @@
 :- use_module(library(lists), [append/3, member/2, nth0/3, same_length/2, select/3]).
 :- use_module(library(readutil), [read_line_to_string/2]).
 
-% Guarda los nombres reales de los jugadores conectados.
+% guarda los nombres reales de los jugadores conectados.
 set_jugadores_iniciales(Nombres) :-
     retractall(jugadores_iniciales(_)),
     assertz(jugadores_iniciales(Nombres)).
@@ -118,7 +118,7 @@ entrada_teclado(Mensaje, Opciones, Resultado) :-
             )
         ).
 
-% pide la respuesta al envido (solo opciones válidas)
+% pide la respuesta al envido
 pedir_respuesta_envido(Rival, Resp) -->
     state(S, S),
     {
@@ -128,9 +128,7 @@ pedir_respuesta_envido(Rival, Resp) -->
         format(string(Texto), "~w responde.~nMano: ~w", [Rival, Mano]),
         publicar_a_jugador(Rival, Texto),
         set_jugador_actual(Rival),
-        % opciones siempre incluyen quiero/no_quiero
         OpcionesBase = [quiero, no_quiero],
-        % agregar envidos válidos según los cantos actuales
         findall(E, (member(E, [envido, real_envido, falta_envido]), canto_envido_valido(Cantos, E)), EnvidosValidos),
         append(OpcionesBase, EnvidosValidos, Opciones)
     },
@@ -405,29 +403,21 @@ turno_jugador(Nombre, CartaJugada, TerminaRonda) -->
           set_jugador_actual(Nombre),
           entrada_teclado("canta", Opciones, Canto)
         },
-        resolver_canto_o_envido_en_turno(Nombre, Canto, TerminaRonda),
-        % Si no termina ronda pero se cantó algo, se debe jugar carta en este turno
-        ( { TerminaRonda == no } ->
-            state(S1, S1),
-            {
-                member(jugadores(P1), S1),
-                member(jugador(Nombre, Mano1, _), P1),
-                mostrar(elige_carta(Nombre)),
-                set_jugador_actual(Nombre),
-                entrada_teclado("elegi carta", Mano1, CartaJugada)
-            }
+        resolver_canto_o_envido_en_turno(Nombre, Canto, TerminaRondaCanto),
+        
+
+        ( { TerminaRondaCanto == no } ->
+            turno_jugador(Nombre, CartaJugada, TerminaRonda)
         ;
-            { CartaJugada = sin_carta }
+            { CartaJugada = sin_carta,
+              TerminaRonda = si }
         )
     ).
-
 % si solo canto, vuelve a pedir carta
-% Nota: Ahora turno_jugador maneja automáticamente pedir carta después de cantar,
-% así que este predicado solo valida que la carta fue jugada
+
 jugar_si_falta_carta(_Nombre, Carta, Termino, CartaFinal) -->
     ( { Termino == no, Carta == sin_carta } ->
-        % Este caso ya NO debería ocurrir porque turno_jugador lo maneja
-        { mostrar(mensaje("Error interno: carta no jugada después de canto.")) },
+        { mostrar(mensaje("Error interno: carta no jugada despuÃ©s de canto.")) },
         { CartaFinal = Carta }
     ;
         { CartaFinal = Carta }
@@ -467,6 +457,7 @@ resolver_envido_en_turno(J, Canto) -->
             mostrar(canta(J, Canto)),
             rival(J, R)
         },
+        set_estado_envido(envido(no_cantado, CantosNuevos, none)),
         pedir_respuesta_envido(R, Resp),
         resolver_respuesta_envido(J, R, CantosNuevos, Resp),
         !
@@ -542,6 +533,7 @@ resolver_respuesta_canto(Cantor, Rival, Canto, Resp) -->
             mostrar(canta(Rival, Resp)),
             append(Cantos, [Resp], CantosNuevos)
         },
+        set_estado_envido(envido(no_cantado, CantosNuevos, none)),
         pedir_respuesta_envido(Cantor, Resp2),
         resolver_respuesta_envido(Rival, Cantor, CantosNuevos, Resp2),
         !
@@ -586,7 +578,6 @@ resolver_mano_cartas(_P_obsoleto, CartasSeleccionadas) -->
     state(S0, S),
     {
         mostrar(resolviendo_cartas),
-        % Extraemos los jugadores actualizados del estado global
         select(jugadores(PActual), S0, S1),
         select(ronda(Resultados, CantoActual, Rech, EstadoEnvido, EstadoTruco, Pendiente), S1, S2),
         carta_alta(CartasSeleccionadas, Resultado),
@@ -596,13 +587,11 @@ resolver_mano_cartas(_P_obsoleto, CartasSeleccionadas) -->
             append([parda], Resultados, Resultados1)
         ;
           nth0(N, CartasSeleccionadas, Resultado),
-          % Usamos PActual para encontrar al ganador
           nth0(N, PActual, JugadorGanador, _),
           JugadorGanador = jugador(Nombre, _, _),
           mostrar(gana_mano(Nombre)),
           append([JugadorGanador], Resultados, Resultados1)
         ),
-        % Usamos PActual para eliminar la carta jugada de las manos
         maplist(eliminar_carta, PActual, CartasSeleccionadas, P1),
         ( Resultado = parda ->
             P2 = P1

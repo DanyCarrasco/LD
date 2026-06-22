@@ -1,4 +1,4 @@
-:- module(interfaz_ws, [
+﻿:- module(interfaz_ws, [
     entrada_teclado/3,
     registrar_socket_jugador/2,
     socket_jugador/2,
@@ -16,6 +16,7 @@ registrar_socket_jugador(Nombre, WebSocket) :-
     retractall(servidorjuego:socket_jugador(Nombre, _)),
     assertz(servidorjuego:socket_jugador(Nombre, WebSocket)).
 
+% consulta el socket de un jugador
 socket_jugador(Nombre, WebSocket) :-
     servidorjuego:socket_jugador(Nombre, WebSocket).
 

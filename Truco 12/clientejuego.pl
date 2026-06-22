@@ -1,4 +1,4 @@
-:- module(clientejuego, [main/0]).
+﻿:- module(clientejuego, [main/0]).
 
 :- use_module(library(http/websocket)).
 :- use_module(library(lists), [member/2]).

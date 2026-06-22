@@ -1,4 +1,4 @@
-:- module(gestor_estado, [
+﻿:- module(gestor_estado, [
     state//1,
     state//2,
     asegurar_ronda//0,
@@ -124,7 +124,7 @@ sumar_si_corresponde(Jug, _Pts, jugador(N, Mano, Puntos), jugador(N, Mano, Punto
     N \= Jug.
 
 
-% saca una carta de la mano del jugador
+% elimina una carta de la mano del jugador
 eliminar_carta(Jugador0, Carta, Jugador) :-
     Jugador0 = jugador(Nombre, Mano0, Puntos),
     select(Carta, Mano0, Mano1),
