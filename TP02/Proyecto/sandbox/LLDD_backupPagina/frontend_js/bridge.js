@@ -139,9 +139,10 @@ export const Bridge = {
 
 window.PrologBridge = Bridge;
 
-    // ============================================================
-    // EXPOSICIONES GLOBALES PARA PROLOG Y OTROS SCRIPTS
-    // ============================================================
+// ============================================================
+// EXPOSICIONES GLOBALES PARA PROLOG Y OTROS SCRIPTS
+// ============================================================
+
 window.mostrarOpciones = (m, o) => Bridge.mostrarOpciones(m, o);
 window.esperarJugadaRemota = (j, m, o) => Bridge.esperarJugadaRemota(j, m, o);
 window.alertaOpcionInvalida = (valor) => {
