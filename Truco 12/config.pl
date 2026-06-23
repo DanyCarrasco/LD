@@ -1,4 +1,4 @@
-:- module(config, [
+﻿:- module(config, [
     rival/2, set_rivales/1, puntaje_objetivo/1, estado_envido_inicial/1, estado_cantos_Truco/1
 ]).
 
@@ -8,6 +8,7 @@ set_rivales([J1, J2]) :-
     assertz(servidorjuego:rival(J1, J2)),
     assertz(servidorjuego:rival(J2, J1)).
 
+% consulta el rival de un jugador
 rival(J1, J2) :-
     servidorjuego:rival(J1, J2).
 

@@ -1,4 +1,4 @@
-:- module(sistema_cantos, [
+﻿:- module(sistema_cantos, [
     es_canto/1,
     nivel_canto/2,
     canto_supera/2,
