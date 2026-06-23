@@ -24,12 +24,5 @@ export const CartasUI = {
 
             contenedorPadre.appendChild(div);
         });
-    },
-
-    configurarEventos(carta) {
-        carta.addEventListener('mousedown', (e) => {
-            // ... (aquí pones la lógica que ya tienes de mousedown)
-            // Tip: usa e.target.dataset.id para saber qué carta es
-        });
     }
 };

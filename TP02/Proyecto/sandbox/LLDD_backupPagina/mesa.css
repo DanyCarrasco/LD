@@ -1,4 +1,4 @@
-.cartas {
+.cartas-rival, .cartas-yo {
     /* Multiplica x por 2 y suma 2 para calcular la línea de inicio */
     grid-column-start: calc(2 + (2 * var(--x)));
     /* Cambia a span para que ocupe exactamente 1 o 2 celdas de ancho */

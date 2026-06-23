@@ -9,13 +9,17 @@ export const Bridge = {
     ambosListos: false,
     partidaIniciada: false,
 
+    // Network es quien envia los mensajes que el bridge debe resolver
     init() {
         console.log('Iniciando Bridge...');
+        // Puerto 8080 es del relay donde network recibira los mensajes
         Network.connect('ws://localhost:8080', (msg) => this.handleMessage(msg));
     },
 
+    // Network ejecuta handleMessage, y el bridge resuelve de acuerdo al tipo de mensaje
     handleMessage(msg) {
         switch(msg.tipo) {
+            //  Relacionado a conexion
             case 'unido':
                 console.log('llamando a UI');
                 this.miNombre = msg.jugador;
@@ -30,6 +34,11 @@ export const Bridge = {
                 this.intentarIniciarPartida();
                 break;
 
+            case 'rival_desconectado':
+                UI.showMessage('El rival se desconectó.');
+                break;
+
+            //  Relacionado a los turnos
             case 'jugada_remota':
                 // Promesa remota (respuesta del rival)
                 if (this.resolverRemotoPendiente) {
@@ -45,15 +54,29 @@ export const Bridge = {
                 }
                 break;
 
+            // Relacionado a estados del juego
             case 'repartir_mano':
                 if (msg.jugador === this.miNombre) {
                     UI.renderizarManoLocal(msg.mano);
                 }
                 break;
 
-            case 'rival_desconectado':
-                UI.showMessage('El rival se desconectó.');
+            case 'puntaje_actualizado':
+                if (window.actualizarPuntaje) {
+                    window.actualizarPuntaje(msg.jugador, msg.puntos);
+                }
                 break;
+
+
+            // Relacionado a lo visual
+            case 'carta_jugada_visual':
+                // El rival acaba de tirar una carta en su pantalla.
+                // La dibujamos en nuestros slots de arriba (y = 0)
+                if (UI.renderizarJugada) {
+                    UI.renderizarJugada(msg.jugador, msg.carta);
+                }
+                break;
+
         }
     },
 
@@ -129,11 +152,28 @@ export const Bridge = {
 
     notificarJugada(valorCarta) {
         console.log("Carta notificada al Bridge:", valorCarta);
-        // Si hay una promesa local esperando (ej. turno de jugar carta)
+
+        // CASO A: Soy el anfitrión y Prolog está esperando que resuelva mi turno localmente
         if (this.resolverLocalPendiente) {
             this.resolverLocalPendiente(valorCarta);
             this.resolverLocalPendiente = null;
-        }}
+        }
+        // CASO B: Soy el invitado y debo mandarle mi jugada al anfitrión
+        else {
+            Network.send('jugada_remota', {
+                jugador: this.miNombre,
+                valor: valorCarta
+            });
+        }
+
+        // --- MAGIA VISUAL ---
+        // Sin importar quién soy, le aviso por WebSocket al rival
+        // para que instancie visualmente esta carta en su mesa.
+        Network.send('carta_jugada_visual', {
+            jugador: this.miNombre,
+            carta: valorCarta
+        });
+    }
 
 };
 
@@ -157,9 +197,11 @@ window.enviarManoRival = (jugador, manoStr) => {
     Network.send('repartir_mano', { jugador: jugador, mano: manoStr });
 };
 window.pedirJugadaAlUsuario = () => new Promise(resolve => window.resolverJugada = resolve);
-// NOTA: no reasignar window.PrologBridge.notificarJugada aquí.
-// window.PrologBridge === Bridge (ver línea de arriba), así que Bridge.notificarJugada
-// ya está expuesto tal cual. Reasignarlo a "(val) => Bridge.notificarJugada(val)"
-// hacía que la función se llamara a sí misma infinitamente (recursión infinita).
+
+window.notificarPuntaje = function(jugador, puntos) {
+    if (window.actualizarPuntaje) window.actualizarPuntaje(jugador, puntos);
+    Network.send('puntaje_actualizado', { jugador, puntos });
+};
 
 Bridge.init();
+

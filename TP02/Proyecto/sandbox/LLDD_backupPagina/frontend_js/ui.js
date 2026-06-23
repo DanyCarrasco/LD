@@ -11,102 +11,74 @@ export const UI = {
         return this.etiquetas[opcion] || opcion;
     },
 
-    // Controlador del flujo de opciones en el turno
     renderButtons(opcionesStr, onSelect) {
         const container = document.getElementById('zonaAcciones');
         container.innerHTML = '';
-        
-        // Al recibir nuevas opciones, las cartas empiezan bloqueadas por seguridad
+
+        // Por seguridad, bloqueamos las cartas cada vez que cambia el estado
         this.setCartasInteractivas(false);
 
-        const opciones = opcionesStr.split(',').filter(o => o.length > 0);
-        
-        // Separamos las cartas de las acciones (cantos o respuestas como quiero/no_quiero)
-        const cartasOpciones = opciones.filter(o => /^[oebc]-\d+$/.test(o));
-        const accionesOpciones = opciones.filter(o => !/^[oebc]-\d+$/.test(o));
+        const opciones = opcionesStr.split(',').map(o => o.trim()).filter(o => o.length > 0);
 
-        // CASO 1: No hay cartas para jugar (ej: respondiendo a un Envido o Truco del rival)
-        // Mostramos las opciones de respuesta directamente
-        if (cartasOpciones.length === 0) {
-            this.renderBotonesDirectos(accionesOpciones, onSelect);
-            return;
-        }
+        // CASO 1: ¿Prolog nos mandó directamente las cartas permitidas? (Ej: "o-6", "e-1")
+        const sonSoloCartas = opciones.length > 0 && opciones.every(o => /^[oebc]-\d+$/.test(o));
 
-        // CASO 2: Turno estándar (Se puede cantar o jugar carta)
-        this.mostrarMenuPrincipalTurno(accionesOpciones, cartasOpciones, onSelect);
-    },
-
-    mostrarMenuPrincipalTurno(acciones, cartas, onSelect) {
-        const container = document.getElementById('zonaAcciones');
-        container.innerHTML = '';
-        this.setCartasInteractivas(false);
-        this.showMessage("Es tu turno. Seleccioná una acción:");
-
-        // Botón de Cantar (solo si hay cantos disponibles como Truco o Envido)
-        if (acciones.length > 0) {
-            const btnCantar = document.createElement('button');
-            btnCantar.textContent = '🗣️ Cantar...';
-            btnCantar.onclick = () => this.mostrarMenuCantos(acciones, cartas, onSelect);
-            container.appendChild(btnCantar);
-        }
-
-        // Botón de Jugar Carta principal
-        const btnJugar = document.createElement('button');
-        btnJugar.textContent = '🃏 Jugar carta';
-        btnJugar.onclick = () => {
-            // FLUJO DIRECTO: Desbloqueamos las cartas inmediatamente al hacer clic
+        if (sonSoloCartas) {
+            // No creamos NINGÚN botón. Directamente habilitamos el drag and drop.
             this.setCartasInteractivas(true);
-            this.showMessage("Arrastrá una carta de tu mano a la mesa para jugarla...");
+            this.showMessage("Arrastrá una carta de tu mano a la mesa...");
+            return; // El "drop" de la carta llamará a bridge.js automáticamente
+        }
 
-            // Limpiamos los botones y solo dejamos un botón de "Volver" por si se arrepiente
-            container.innerHTML = '';
-            const btnVolver = document.createElement('button');
-            btnVolver.textContent = '⬅️ Volver';
-            btnVolver.style.backgroundColor = '#555';
-            btnVolver.onclick = () => this.mostrarMenuPrincipalTurno(acciones, cartas, onSelect);
-            container.appendChild(btnVolver);
-        };
-        container.appendChild(btnJugar);
-    },
-
-    mostrarMenuCantos(acciones, cartas, onSelect) {
-        const container = document.getElementById('zonaAcciones');
-        container.innerHTML = '';
-
-        acciones.forEach(opcion => {
-            const btn = document.createElement('button');
-            btn.textContent = this.etiquetaBoton(opcion);
-            btn.onclick = () => {
-                container.querySelectorAll('button').forEach(b => b.disabled = true);
-                onSelect(opcion);
-            };
-            container.appendChild(btn);
-        });
-
-    },
-
-    renderBotonesDirectos(opciones, onSelect) {
-        const container = document.getElementById('zonaAcciones');
-        container.innerHTML = '';
+        // CASO 2: Prolog envía acciones (jugar, cantar, envido, quiero, etc.)
         opciones.forEach(opcion => {
             const btn = document.createElement('button');
             btn.textContent = this.etiquetaBoton(opcion);
+
             btn.onclick = () => {
-                container.querySelectorAll('button').forEach(b => b.disabled = true);
+                // Al hacer clic, borramos TODOS los botones para que no haya redundancias
+                container.innerHTML = '';
+
+                if (opcion === 'jugar') {
+                    // Si eligió jugar carta, habilitamos las cartas y le avisamos a Prolog
+                    this.showMessage("Arrastrá tu carta a la mesa...");
+                    this.setCartasInteractivas(true);
+                }
+
+                // Le enviamos la decisión ('jugar' o 'cantar') a Prolog
                 onSelect(opcion);
             };
+
             container.appendChild(btn);
         });
     },
 
-    // Activa o desactiva el arrastre de las cartas (Sin alterar la opacidad visual)
     setCartasInteractivas(activado) {
         document.querySelectorAll('.carta').forEach(carta => {
             if (!carta.classList.contains('jugada')) {
-                // Controlamos la interacción puramente con pointer-events
                 carta.style.pointerEvents = activado ? 'auto' : 'none';
             }
         });
+    },
+
+    colocarCartaRivalEnMesa(cartaId) {
+        // Buscamos los slots correspondientes al rival (y = 0)
+        const slotsRivales = Array.from(document.querySelectorAll('.cartas[style*="--y: 0"]'));
+
+        // Buscamos el primero libre
+        const slotVacio = slotsRivales.find(slot => !slot.dataset.ocupado);
+
+        if (slotVacio) {
+            // Le aplicamos directamente la imagen como fondo
+            slotVacio.style.backgroundImage = `url('./Carta/img/${cartaId}.png')`;
+            slotVacio.style.backgroundSize = 'cover';
+            slotVacio.style.backgroundPosition = 'center';
+
+            // Lo marcamos como ocupado
+            slotVacio.dataset.ocupado = "true";
+        } else {
+            console.warn("La mesa del rival ya está llena.");
+        }
     },
 
     showMessage(txt) {
@@ -114,7 +86,6 @@ export const UI = {
     },
 
     setAvatares(miNombre) {
-        console.log('seteando avatares');
         const yo = document.getElementById('yo');
         const rival = document.getElementById('rival');
         if (!yo || !rival) return;
@@ -128,10 +99,36 @@ export const UI = {
         }
     },
 
-    renderizarManoLocal(cartasData) {
-        console.log("DEBUG: Renderizando cartas. Datos recibidos:", cartasData);
+    renderizarJugada(miNombre, cartaId) {
+        let slots;
+        console.log(miNombre);
+        if (miNombre === this.miNombre) {
+            slots = document.querySelectorAll('.cartas-yo');
+        } else {
+            slots = document.querySelectorAll('.cartas-rival');
+        }
 
-        // 1. Limpiar mesa de cartas no jugadas
+        for (const slot of slots) {
+
+            if (!slot.dataset.ocupado) {
+
+                slot.style.backgroundImage =
+                    `url('./Carta/img/${cartaId}.png')`;
+
+                slot.style.backgroundSize = 'cover';
+                slot.style.backgroundPosition = 'center';
+
+                slot.dataset.ocupado = 'true';
+
+                break;
+            }
+        }
+    },
+
+    pintarCarta(x, carta){},
+
+    renderizarManoLocal(cartasData) {
+        // Limpiar mesa de cartas no jugadas
         document.querySelectorAll('.carta:not(.jugada)').forEach(c => c.remove());
 
         let cartas = [];
@@ -146,7 +143,7 @@ export const UI = {
             cartas = cartasData;
         }
 
-        // 2. Dibujar las cartas en la interfaz
+        // Dibujar las cartas en la interfaz
         cartas.forEach((datos, index) => {
             if (!datos.id) return;
 
@@ -168,9 +165,10 @@ export const UI = {
             document.body.appendChild(div);
         });
 
-        // Al repartir la mano, las cartas nacen bloqueadas hasta que el turno requiera lo contrario
+        // Al repartir, nacen bloqueadas esperando instrucciones de Prolog
         this.setCartasInteractivas(false);
     }
 };
 
 window.mostrarMensaje = (texto) => UI.showMessage(texto);
+window.inhabilitarCartas = (v) => UI.setCartasInteractivas(v);

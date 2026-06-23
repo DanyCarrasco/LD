@@ -32,14 +32,19 @@
 
 entrada_web(Jugador, Mensaje, Opciones, Resultado) :-
     Opciones \= [],
-    % term_to_atom/2 funciona tanto para atomos simples (truco)
-    % como para terminos compuestos (cartas: e-1, b-7).
-    % atomic_list_concat/3 directo NO serviria con cartas, porque
-    % exige elementos atomicos puros.
+    repeat,
+    % Aplicamos las Opciones dadas en atomos
     maplist(termino_a_atomo, Opciones, OpcionesAtomos),
+
+    % Concatenamos estos atomos en comas
     atomic_list_concat(OpcionesAtomos, ',', OpcionesAtomo),
+
+    % Convertimos lo concatenado a String
     atom_string(OpcionesAtomo, OpcionesStr),
+
+
     ( string(Mensaje) -> MensajeStr = Mensaje ; atom_string(Mensaje, MensajeStr) ),
+
     atom_string(Jugador, JugadorStr),
     ( es_jugador_local(Jugador) ->
         Promise := mostrarOpciones(MensajeStr, OpcionesStr)
@@ -52,9 +57,10 @@ entrada_web(Jugador, Mensaje, Opciones, Resultado) :-
     atom_string(RespuestaTexto, RespuestaJS),
     term_to_atom(RespuestaTermino, RespuestaTexto),
     (   member(RespuestaTermino, Opciones)
-    ->  Resultado = RespuestaTermino
+    ->  Resultado = RespuestaTermino,
+        format("~w responde: ~w ~n", [Jugador, Resultado]), !
     ;   _ := alertaOpcionInvalida(RespuestaJS),
-        entrada_web(Jugador, Mensaje, Opciones, Resultado)
+        fail
     ).
 
 

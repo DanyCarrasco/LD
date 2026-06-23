@@ -16,23 +16,23 @@
             <div id="rival"  class="jugador" style="--p: 0"></div>
             <div id="yo" class="jugador" style="--p: 7"></div>
 
-            <div class="cartas" style="--x: 0; --y: 0"></div>
-            <div class="cartas" style="--x: 1; --y: 0"></div>
-            <div class="cartas" style="--x: 2; --y: 0"></div>
-            <div class="cartas" style="--x: 0; --y: 1"></div>
-            <div class="cartas" style="--x: 1; --y: 1"></div>
-            <div class="cartas" style="--x: 2; --y: 1"></div>
+            <div class="cartas-rival" style="--x: 0; --y: 0"></div>
+            <div class="cartas-rival" style="--x: 1; --y: 0"></div>
+            <div class="cartas-rival" style="--x: 2; --y: 0"></div>
+            <div class="cartas-yo" style="--x: 0; --y: 1"></div>
+            <div class="cartas-yo" style="--x: 1; --y: 1"></div>
+            <div class="cartas-yo" style="--x: 2; --y: 1"></div>
 
        </div>
 
-       <div class="puntaje" style="--p: 2">
-           <h1 class="texto">Yo</h1>
-           <div id="malas-nos" class="zona-fosforos malas"></div>
-       </div>
-       <div class="puntaje" style="--p: 9">
+        <div class="puntaje" style="--p: 2">
+            <h1 class="texto">Yo</h1>
+            <div id="malas-yo" class="zona-fosforos malas"></div>
+        </div>
+        <div class="puntaje" style="--p: 9">
             <h1 class="texto">Rival</h1>
-            <div id="malas-nos" class="zona-fosforos malas"></div>
-       </div>
+            <div id="malas-rival" class="zona-fosforos malas"></div>
+        </div>
        <div class="jugadas" id="zonaAcciones">
         <!-- Los botones se generan dinamicamente desde JS,
              segun lo que Prolog este pidiendo en cada momento -->
@@ -43,13 +43,14 @@
     </div>
 <script src="swipl/swipl-bundle.js"></script>
 
-<script type="module" src="/frontend_js/network.js"></script>
-<script type="module" src="/frontend_js/interaccion_3d.js"></script>
-<script type="module" src="/frontend_js/ui.js"></script>
-<script type="module" src="/frontend_js/bridge.js"></script>
+<script type="module" src="./frontend_js/network.js"></script>
+<script type="module" src="./frontend_js/interaccion_3d.js"></script>
+<script type="module" src="./frontend_js/ui.js"></script>
+<script type="module" src="./frontend_js/fosforos.js"></script>
+<script type="module" src="./frontend_js/bridge.js"></script>
 
-<script type="module" src="/frontend_js/cartas.js"></script>
-<script type="module" src="/frontend_js/iniciar_prolog.js"></script>
+<script type="module" src="./frontend_js/cartas.js"></script>
+<script type="module" src="./frontend_js/iniciar_prolog.js"></script>
 
 </body>
 </html>

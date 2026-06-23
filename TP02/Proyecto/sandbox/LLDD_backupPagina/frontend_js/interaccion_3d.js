@@ -38,7 +38,7 @@ window.Interaccion3D = {
 
     // 3. EVENTOS GLOBALES (Movimiento, Drop y Cancelaciones)
     initGlobalListeners: function() {
-        
+
         // MOVIMIENTO 3D
         document.addEventListener('mousemove', (e) => {
             if (!this.cartaActiva) return;
@@ -77,25 +77,48 @@ window.Interaccion3D = {
             carta.style.visibility = 'visible';
 
             if (elementoAbajo && (elementoAbajo === zonaDrop || zonaDrop.contains(elementoAbajo))) {
-                // Drop exitoso
-                carta.style.setProperty('--rotX', '0deg');
-                carta.style.setProperty('--rotY', '0deg');
+
+
+                // Buscamos los slots de tu fila (y = 1)
+                const slotsLocales = Array.from(document.querySelectorAll('.cartas[style*="--y: 1"]'));
+
+                // Encontramos el primer slot que no tenga el atributo "ocupado"
+                const slotVacio = slotsLocales.find(slot => !slot.dataset.ocupado);
+
+                if (slotVacio) {
+                    // Le robamos la imagen a la carta física
+                    const urlImagen = carta.style.getPropertyValue('--img');
+
+                    // Se la aplicamos al div azul
+                    slotVacio.style.backgroundImage = urlImagen;
+                    slotVacio.style.backgroundSize = 'cover';
+                    slotVacio.style.backgroundPosition = 'center';
+
+                    // Marcamos el slot como ocupado
+                    slotVacio.dataset.ocupado = "true";
+
+                    // Ocultamos la carta que arrastramos (ya se fundió con la mesa)
+                    carta.style.display = 'none';
+                } else {
+                    carta.style.display = 'none'; // Fallback por si la fila se llena
+                }
+                // --------------------------------
+
                 carta.classList.add('jugada');
 
                 const cartaJugada = carta.dataset.valorCarta;
                 console.log("Jugando carta:", cartaJugada);
 
-                // Notificamos al bridge o a la variable legacy
+                // Notificamos a Prolog
                 if (window.PrologBridge && window.PrologBridge.notificarJugada) {
                     window.PrologBridge.notificarJugada(cartaJugada);
-                } else if (window.resolverJugada) {
-                    window.resolverJugada(cartaJugada);
+                } else if (window.PrologBridge.resolverJugada) {
+                    window.PrologBridge.resolverJugada(cartaJugada);
                 }
 
-                zonaDrop.appendChild(carta);
                 this.cartaActiva = null;
             } else {
-                // Drop fallido, regresa al mazo
+                // Drop fallido, regresa a tu mano
                 this.regresarAlSitio(carta);
                 this.cartaActiva = null;
             }
