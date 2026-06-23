@@ -76,41 +76,17 @@ window.Interaccion3D = {
             let elementoAbajo = document.elementFromPoint(e.clientX, e.clientY);
             carta.style.visibility = 'visible';
 
+            // Al soltar las carta en la zona drop
             if (elementoAbajo && (elementoAbajo === zonaDrop || zonaDrop.contains(elementoAbajo))) {
-
-
-                // Buscamos los slots de tu fila (y = 1)
-                const slotsLocales = Array.from(document.querySelectorAll('.cartas[style*="--y: 1"]'));
-
-                // Encontramos el primer slot que no tenga el atributo "ocupado"
-                const slotVacio = slotsLocales.find(slot => !slot.dataset.ocupado);
-
-                if (slotVacio) {
-                    // Le robamos la imagen a la carta física
-                    const urlImagen = carta.style.getPropertyValue('--img');
-
-                    // Se la aplicamos al div azul
-                    slotVacio.style.backgroundImage = urlImagen;
-                    slotVacio.style.backgroundSize = 'cover';
-                    slotVacio.style.backgroundPosition = 'center';
-
-                    // Marcamos el slot como ocupado
-                    slotVacio.dataset.ocupado = "true";
-
-                    // Ocultamos la carta que arrastramos (ya se fundió con la mesa)
-                    carta.style.display = 'none';
-                } else {
-                    carta.style.display = 'none'; // Fallback por si la fila se llena
-                }
-                // --------------------------------
-
+                carta.style.display = 'none';
                 carta.classList.add('jugada');
 
                 const cartaJugada = carta.dataset.valorCarta;
+
                 console.log("Jugando carta:", cartaJugada);
 
-                // Notificamos a Prolog
                 if (window.PrologBridge && window.PrologBridge.notificarJugada) {
+                    window.inhabilitarCartas;
                     window.PrologBridge.notificarJugada(cartaJugada);
                 } else if (window.PrologBridge.resolverJugada) {
                     window.PrologBridge.resolverJugada(cartaJugada);
@@ -118,11 +94,10 @@ window.Interaccion3D = {
 
                 this.cartaActiva = null;
             } else {
-                // Drop fallido, regresa a tu mano
                 this.regresarAlSitio(carta);
                 this.cartaActiva = null;
             }
-        });
+});
 
         // CANCELACIÓN CON CLICK DERECHO
         document.addEventListener('mousedown', (e) => {

@@ -9,6 +9,10 @@
     /* Cambia a span para que ocupe exactamente una celda de alto */
     grid-row-end: span 1;
 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
     background-color: rgb(0, 34, 255);
 }
 

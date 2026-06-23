@@ -70,12 +70,21 @@ export const Bridge = {
 
             // Relacionado a lo visual
             case 'carta_jugada_visual':
-                // El rival acaba de tirar una carta en su pantalla.
-                // La dibujamos en nuestros slots de arriba (y = 0)
-                if (UI.renderizarJugada) {
-                    UI.renderizarJugada(msg.jugador, msg.carta);
-                }
-                break;
+
+            if (msg.mano !== UI.numeroMano) {
+                console.log(
+                    "Descartando visual vieja",
+                    msg.carta,
+                    "mano",
+                    msg.mano,
+                    "actual",
+                    UI.numeroMano
+                );
+                return;
+            }
+
+            UI.renderizarJugada(msg.jugador, msg.carta);
+            break;
 
         }
     },
@@ -151,6 +160,7 @@ export const Bridge = {
     },
 
     notificarJugada(valorCarta) {
+        window.inhabilitarCartas(false);
         console.log("Carta notificada al Bridge:", valorCarta);
 
         // CASO A: Soy el anfitrión y Prolog está esperando que resuelva mi turno localmente
@@ -166,12 +176,14 @@ export const Bridge = {
             });
         }
 
-        // --- MAGIA VISUAL ---
-        // Sin importar quién soy, le aviso por WebSocket al rival
-        // para que instancie visualmente esta carta en su mesa.
-        Network.send('carta_jugada_visual', {
+        if (UI.renderizarJugada) {
+            UI.renderizarJugada(this.miNombre, valorCarta);
+        }
+
+       Network.send('carta_jugada_visual', {
             jugador: this.miNombre,
-            carta: valorCarta
+            carta: valorCarta,
+            mano: UI.numeroMano
         });
     }
 

@@ -1,3 +1,5 @@
+import { Bridge } from "./bridge.js";
+
 // js/ui.js
 export const UI = {
     etiquetas: {
@@ -100,18 +102,25 @@ export const UI = {
     },
 
     renderizarJugada(miNombre, cartaId) {
+
         let slots;
         console.log(miNombre);
-        if (miNombre === this.miNombre) {
+        if (miNombre === Bridge.miNombre) {
             slots = document.querySelectorAll('.cartas-yo');
         } else {
             slots = document.querySelectorAll('.cartas-rival');
         }
 
+                console.log(
+        "RENDERIZANDO JUGADA",
+        miNombre,
+            cartaId,
+            "ocupados:",
+            [...slots].filter(s => s.dataset.ocupado).length
+        );
         for (const slot of slots) {
 
             if (!slot.dataset.ocupado) {
-
                 slot.style.backgroundImage =
                     `url('./Carta/img/${cartaId}.png')`;
 
@@ -125,36 +134,79 @@ export const UI = {
         }
     },
 
-    pintarCarta(x, carta){},
+    desocuparCartas(slots) {
+        for (const slot of slots) {
+            slot.style.backgroundImage = 'none';
+            delete slot.dataset.ocupado;
+        }
+    },
 
     renderizarManoLocal(cartasData) {
-        // Limpiar mesa de cartas no jugadas
-        document.querySelectorAll('.carta:not(.jugada)').forEach(c => c.remove());
+
+        console.log("========== NUEVA MANO ==========");
+
+        console.log("ANTES DE LIMPIAR");
+        document.querySelectorAll('.cartas-rival, .cartas-yo')
+            .forEach((slot, i) => {
+                console.log(
+                    i,
+                    "ocupado:",
+                    slot.dataset.ocupado,
+                    "img:",
+                    slot.style.backgroundImage
+                );
+            });
+
+        // Limpiar cartas de la mano anterior
+        document.querySelectorAll('.carta:not(.jugada)')
+            .forEach(c => c.remove());
+
+        document.querySelectorAll('.cartas-rival, .cartas-yo')
+            .forEach(slot => {
+                slot.style.backgroundImage = 'none';
+                delete slot.dataset.ocupado;
+            });
+
+        console.log("DESPUES DE LIMPIAR");
+        document.querySelectorAll('.cartas-rival, .cartas-yo')
+            .forEach((slot, i) => {
+                console.log(
+                    i,
+                    "ocupado:",
+                    slot.dataset.ocupado,
+                    "img:",
+                    slot.style.backgroundImage
+                );
+            });
 
         let cartas = [];
 
         if (typeof cartasData === 'string') {
             const ids = cartasData.split(',');
-            cartas = ids.map(id => {
-                return { id: id.trim() };
-            });
+            cartas = ids.map(id => ({ id: id.trim() }));
         }
         else if (Array.isArray(cartasData)) {
             cartas = cartasData;
         }
 
-        // Dibujar las cartas en la interfaz
         cartas.forEach((datos, index) => {
+
             if (!datos.id) return;
 
             const div = document.createElement('div');
+
             div.className = 'carta';
             div.dataset.valorCarta = datos.id;
 
-            const urlImagen = datos.img ? datos.img : `url('./Carta/img/${datos.id}.png')`;
+            const urlImagen =
+                datos.img
+                    ? datos.img
+                    : `url('./Carta/img/${datos.id}.png')`;
+
             div.style.setProperty('--img', urlImagen);
 
             const left = 60 + (index * 6);
+
             div.style.left = `${left}%`;
             div.style.top = '65%';
 
@@ -165,8 +217,12 @@ export const UI = {
             document.body.appendChild(div);
         });
 
-        // Al repartir, nacen bloqueadas esperando instrucciones de Prolog
         this.setCartasInteractivas(false);
+
+        console.log("========== FIN NUEVA MANO ==========");
+        this.numeroMano = (this.numeroMano || 0) + 1;
+
+console.log("MANO", this.numeroMano);
     }
 };
 
