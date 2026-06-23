@@ -25,14 +25,14 @@
 
        </div>
 
-        <div class="puntaje" style="--p: 2">
-            <h1 class="texto">Yo</h1>
-            <div id="malas-yo" class="zona-fosforos malas"></div>
-        </div>
-        <div class="puntaje" style="--p: 9">
+       <div class="puntaje" style="--p: 2">
+           <h1 class="texto">Yo</h1>
+           <div id="fosforos-yo" class="zona-fosforos malas"></div>
+       </div>
+       <div class="puntaje" style="--p: 9">
             <h1 class="texto">Rival</h1>
-            <div id="malas-rival" class="zona-fosforos malas"></div>
-        </div>
+            <div id="fosforos-rival" class="zona-fosforos malas"></div>
+       </div>
        <div class="jugadas" id="zonaAcciones">
         <!-- Los botones se generan dinamicamente desde JS,
              segun lo que Prolog este pidiendo en cada momento -->
@@ -43,10 +43,10 @@
     </div>
 <script src="swipl/swipl-bundle.js"></script>
 
+<script src="./frontend_js/fosforos.js"></script>
 <script type="module" src="./frontend_js/network.js"></script>
 <script type="module" src="./frontend_js/interaccion_3d.js"></script>
 <script type="module" src="./frontend_js/ui.js"></script>
-<script type="module" src="./frontend_js/fosforos.js"></script>
 <script type="module" src="./frontend_js/bridge.js"></script>
 
 <script type="module" src="./frontend_js/cartas.js"></script>

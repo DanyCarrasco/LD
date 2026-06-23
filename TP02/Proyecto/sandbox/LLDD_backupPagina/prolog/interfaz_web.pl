@@ -5,7 +5,9 @@
     opciones_cantos_disponibles//1,
     mensaje_cantos_disponibles//1,
     envido_habilitado//0,
-    imprimir_lista/1
+    imprimir_lista/1,
+    notificar_manos_web//0,
+    notificar_puntaje//0
 ]).
 
 :- use_module(library(wasm)).
@@ -32,19 +34,14 @@
 
 entrada_web(Jugador, Mensaje, Opciones, Resultado) :-
     Opciones \= [],
-    repeat,
-    % Aplicamos las Opciones dadas en atomos
+    % term_to_atom/2 funciona tanto para atomos simples (truco)
+    % como para terminos compuestos (cartas: e-1, b-7).
+    % atomic_list_concat/3 directo NO serviria con cartas, porque
+    % exige elementos atomicos puros.
     maplist(termino_a_atomo, Opciones, OpcionesAtomos),
-
-    % Concatenamos estos atomos en comas
     atomic_list_concat(OpcionesAtomos, ',', OpcionesAtomo),
-
-    % Convertimos lo concatenado a String
     atom_string(OpcionesAtomo, OpcionesStr),
-
-
     ( string(Mensaje) -> MensajeStr = Mensaje ; atom_string(Mensaje, MensajeStr) ),
-
     atom_string(Jugador, JugadorStr),
     ( es_jugador_local(Jugador) ->
         Promise := mostrarOpciones(MensajeStr, OpcionesStr)
@@ -57,10 +54,9 @@ entrada_web(Jugador, Mensaje, Opciones, Resultado) :-
     atom_string(RespuestaTexto, RespuestaJS),
     term_to_atom(RespuestaTermino, RespuestaTexto),
     (   member(RespuestaTermino, Opciones)
-    ->  Resultado = RespuestaTermino,
-        format("~w responde: ~w ~n", [Jugador, Resultado]), !
+    ->  Resultado = RespuestaTermino
     ;   _ := alertaOpcionInvalida(RespuestaJS),
-        fail
+        entrada_web(Jugador, Mensaje, Opciones, Resultado)
     ).
 
 
@@ -169,3 +165,22 @@ notificar_mano(jugador(Nombre, Mano, _)) :-
     ;
         _ := enviarManoRival(NombreStr, ManoStr)
     ).
+
+
+% ============================================================
+%  notificar_puntaje//0
+%  Avisa al frontend el puntaje ACTUAL de cada jugador, para que
+%  fosforos.js redibuje las "tranqueras". Se llama cada vez que
+%  gestor_estado.pl modifica los puntos (canto rechazado, envido
+%  resuelto, ronda ganada, etc).
+% ============================================================
+notificar_puntaje -->
+    state(S, S),
+    {
+        member(jugadores(P0), S),
+        maplist(notificar_puntaje_jugador, P0)
+    }.
+
+notificar_puntaje_jugador(jugador(Nombre, _Mano, Puntos)) :-
+    atom_string(Nombre, NombreStr),
+    _ := actualizarPuntaje(NombreStr, Puntos).

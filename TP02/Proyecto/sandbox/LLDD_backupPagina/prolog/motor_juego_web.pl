@@ -288,6 +288,7 @@ resolver_respuesta_canto(Cantor, Rival, Canto, Resp) -->
     ; { Resp == rechaza } ->
         { puntos_por_rechazo(Canto, Pts) },
         sumar_puntos_a_jugador(Cantor, Pts),
+        notificar_puntaje,
         set_rechazo(Cantor),
         { format("~w rechazo. ~w gana ~w puntos.~n", [Rival, Cantor, Pts]) }
 
@@ -325,7 +326,8 @@ premiar_envido_aceptado(Cantos) -->
         format("~w tiene ~w de envido.~n", [N2, P2]),
         format("~w gana el envido y suma ~w puntos.~n", [Ganador, Pts])
     },
-    sumar_puntos_a_jugador(Ganador, Pts).
+    sumar_puntos_a_jugador(Ganador, Pts),
+    notificar_puntaje.
 
 % suma puntos por envido rechazado
 premiar_envido_rechazado(Cantor, Cantos) -->
@@ -335,7 +337,8 @@ premiar_envido_rechazado(Cantor, Cantos) -->
         puntos_envido_rechazado(Cantos, [J1, J2], Pts),
         format("~w gana ~w puntos por el envido no querido.~n", [Cantor, Pts])
     },
-    sumar_puntos_a_jugador(Cantor, Pts).
+    sumar_puntos_a_jugador(Cantor, Pts),
+    notificar_puntaje.
 
 
 % resuelve las cartas jugadas en la mano
@@ -383,7 +386,8 @@ finalizar_ronda -->
         estado_envido_inicial(EstadoEnvidoNuevo),
         estado_cantos_Truco(EstadoTruco),
         S = [ronda([], ninguno, none, EstadoEnvidoNuevo, EstadoTruco, none), jugadores(P1)|S2]
-    }.
+    },
+    notificar_puntaje.
 
 
 % informa si la partida ya termino
