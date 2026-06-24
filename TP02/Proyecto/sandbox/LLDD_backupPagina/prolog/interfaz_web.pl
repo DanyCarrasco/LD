@@ -13,6 +13,7 @@
 :- use_module(library(wasm)).
 :- use_module(gestor_estado, [state//1, state//2]).
 :- use_module(estado_jugador, [es_jugador_local/1]).
+:- use_module(sistema_cantos, [canto_envido_valido/2]).
 
 % ============================================================
 %  entrada_web/4
@@ -77,11 +78,14 @@ termino_a_atomo(Termino, Atomo) :-
 pedir_respuesta_envido(Rival, Resp) -->
     state(S, S),
     {
+        select(ronda(_, _, _, envido(_, Cantos, _), _, _), S, _),
         member(jugadores(P0), S),
         member(jugador(Rival, Mano, _), P0),
         format("~w responde.\nMano: ~w~n", [Rival, Mano]),
-        entrada_web(Rival, "Respuesta", [quiero, no_quiero, envido, real_envido, falta_envido], Resp)
-    }.
+        findall(Opcion, (member(Opcion, [envido, real_envido, falta_envido]), canto_envido_valido(Cantos, Opcion)), OpcionesEnvido),
+        append([quiero, no_quiero], OpcionesEnvido, Opciones)
+    },
+    { entrada_web(Rival, "Respuesta", Opciones, Resp) }.
 
 
 
@@ -119,10 +123,16 @@ pedir_respuesta(Rival, Resp) -->
         member(jugadores(P0), S),
         member(jugador(Rival, Mano, _), P0),
         format("~w responde. Mano: ~w~n", [Rival, Mano]),
-        append([acepta, rechaza], X, OpcionesBasicas),
-        append([acepta, rechaza, envido, real_envido, falta_envido], X, OpcionesConEnvido)
+        append([acepta, rechaza], X, OpcionesBasicas)
     },
     ( envido_habilitado ->
+        state(S, S),
+        {
+            select(ronda(_, _, _, envido(_, Cantos, _), _, _), S, _),
+            findall(Opcion, (member(Opcion, [envido, real_envido, falta_envido]), canto_envido_valido(Cantos, Opcion)), OpcionesEnvido),
+            append([acepta, rechaza], OpcionesEnvido, OpcionesTemp),
+            append(OpcionesTemp, X, OpcionesConEnvido)
+        },
         { entrada_web(Rival, "Respuesta", OpcionesConEnvido, Resp) }
     ;
         { entrada_web(Rival, "Respuesta", OpcionesBasicas, Resp) }

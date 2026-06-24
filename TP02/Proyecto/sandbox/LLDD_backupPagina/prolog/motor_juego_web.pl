@@ -301,7 +301,13 @@ resolver_respuesta_canto(Cantor, Rival, Canto, Resp) -->
             append(Cantos, [Resp], CantosNuevos)
         },
         pedir_respuesta_envido(Cantor, Resp2),
-        resolver_respuesta_envido(Rival, Cantor, CantosNuevos, Resp2)
+        resolver_respuesta_envido(Rival, Cantor, CantosNuevos, Resp2),
+        ( hay_ganador_partida_estado ->
+            []
+        ;
+            pedir_respuesta(Rival, Resp3),
+            resolver_respuesta_canto(Cantor, Rival, Canto, Resp3)
+        )
 
     ; { es_canto(Resp), canto_supera(Resp, Canto) } ->
         { format("~w resube a ~w~n", [Rival, Resp]) },
