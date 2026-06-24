@@ -166,4 +166,5 @@ notificar_puntaje -->
 
 notificar_puntaje_jugador(jugador(Nombre, _Mano, Puntos)) :-
     atom_string(Nombre, NombreStr),
-    _ := actualizarPuntaje(NombreStr, Puntos).
+    format("~w se le actualiza el puntaje ~n",[NombreStr]),
+    _ := notificarPuntaje(NombreStr, Puntos).

@@ -1,3 +1,6 @@
+import { Bridge } from "./bridge.js";
+
+
 // fosforos.js
 // Dibuja el puntaje del Truco usando "tranqueras" de fósforos
 // (grupos de 5: 4 lados de un cuadrado + 1 diagonal), igual a
@@ -40,6 +43,12 @@ function pintarFosforos(idContenedor, puntos) {
   if (resto > 0) {
     contenedor.appendChild(crearTranquera(resto));
   }
+
+  if (puntos >= 15) {
+    contenedor.classList.add('ganador');
+  } else {
+    contenedor.classList.remove('ganador');
+  }
 }
 
 // --- Estado inicial ---
@@ -64,9 +73,12 @@ document.addEventListener('DOMContentLoaded', () => {
  * @param {number} puntos - puntaje TOTAL actual de ese jugador
  */
 function actualizarPuntaje(nombreJugador, puntos) {
+  console.log('Actualizando puntajes');
+  console.log(nombreJugador + "  " + Bridge.miNombre);
+
   const miNombre = window.PrologBridge ? window.PrologBridge.miNombre : null;
 
-  if (nombreJugador === miNombre) {
+  if (nombreJugador === Bridge.miNombre) {
     pintarFosforos('fosforos-yo', puntos);
   } else {
     pintarFosforos('fosforos-rival', puntos);

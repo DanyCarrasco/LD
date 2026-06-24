@@ -111,13 +111,7 @@ export const UI = {
             slots = document.querySelectorAll('.cartas-rival');
         }
 
-                console.log(
-        "RENDERIZANDO JUGADA",
-        miNombre,
-            cartaId,
-            "ocupados:",
-            [...slots].filter(s => s.dataset.ocupado).length
-        );
+
         for (const slot of slots) {
 
             if (!slot.dataset.ocupado) {
@@ -142,20 +136,6 @@ export const UI = {
     },
 
     renderizarManoLocal(cartasData) {
-
-        console.log("========== NUEVA MANO ==========");
-
-        console.log("ANTES DE LIMPIAR");
-        document.querySelectorAll('.cartas-rival, .cartas-yo')
-            .forEach((slot, i) => {
-                console.log(
-                    i,
-                    "ocupado:",
-                    slot.dataset.ocupado,
-                    "img:",
-                    slot.style.backgroundImage
-                );
-            });
 
         // Limpiar cartas de la mano anterior
         document.querySelectorAll('.carta:not(.jugada)')

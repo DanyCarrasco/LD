@@ -378,6 +378,8 @@ finalizar_ronda -->
             nth0(N, P0, Ganador, Resto),
             Ganador = jugador(Nombre, Mano, Puntos),
             format("El jugador ~w gano la ronda~n", [Nombre]),
+            
+            _ := esperar(2000),
             ( Canto == ninguno -> Suma = 1 ; puntos_por_canto(Canto, Suma) ),
             PuntosNuevos is Puntos + Suma,
             JN = jugador(Nombre, Mano, PuntosNuevos),

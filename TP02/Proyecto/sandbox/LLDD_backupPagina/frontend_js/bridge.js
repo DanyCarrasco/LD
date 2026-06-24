@@ -70,19 +70,6 @@ export const Bridge = {
 
             // Relacionado a lo visual
             case 'carta_jugada_visual':
-
-            if (msg.mano !== UI.numeroMano) {
-                console.log(
-                    "Descartando visual vieja",
-                    msg.carta,
-                    "mano",
-                    msg.mano,
-                    "actual",
-                    UI.numeroMano
-                );
-                return;
-            }
-
             UI.renderizarJugada(msg.jugador, msg.carta);
             break;
 
@@ -201,6 +188,11 @@ window.alertaOpcionInvalida = (valor) => {
     console.warn('Opcion invalida:', valor);
     UI.showMessage(`Opción inválida: "${valor}", intentá de nuevo.`);
 };
+
+window.showMessage = (valor) => {
+    UI.showMessage(valor);
+};
+
 window.intentarIniciarPartida = () => Bridge.intentarIniciarPartida();
 
 // Cartas
@@ -213,6 +205,10 @@ window.pedirJugadaAlUsuario = () => new Promise(resolve => window.resolverJugada
 window.notificarPuntaje = function(jugador, puntos) {
     if (window.actualizarPuntaje) window.actualizarPuntaje(jugador, puntos);
     Network.send('puntaje_actualizado', { jugador, puntos });
+};
+
+window.esperar = function(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 };
 
 Bridge.init();
