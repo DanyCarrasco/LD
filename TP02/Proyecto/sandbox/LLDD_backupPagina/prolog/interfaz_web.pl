@@ -84,12 +84,7 @@ pedir_respuesta_envido(Rival, Resp) -->
     }.
 
 
-% ============================================================
-%  opciones_cantos_disponibles//1
-%  Usa el estado dinamico de trucos(X): a medida que se canta
-%  truco/retruco/vale4, X se va reduciendo (step_estado_truco
-%  en gestor_estado.pl).
-% ============================================================
+
 opciones_cantos_disponibles(Opciones) -->
     state(S0, S0),
     {
@@ -117,11 +112,6 @@ mensaje_cantos_disponibles(Nombre) -->
     ).
 
 
-% ============================================================
-%  pedir_respuesta//2
-%  Las opciones de respuesta a un canto incluyen "subir la
-%  apuesta" segun lo que quede disponible en trucos(X).
-% ============================================================
 pedir_respuesta(Rival, Resp) -->
     state(S, S),
     {
@@ -139,13 +129,6 @@ pedir_respuesta(Rival, Resp) -->
     ).
 
 
-% Exporta este predicado al principio del archivo
-% en la directiva :- module(interfaz_web, [..., notificar_manos_web//0]).
-
-% ============================================================
-%  notificar_manos_web//0
-%  Avisa al frontend qué cartas le tocaron a cada jugador.
-% ============================================================
 notificar_manos_web -->
     state(S, S),
     {
@@ -161,7 +144,7 @@ notificar_mano(jugador(Nombre, Mano, _)) :-
     atom_string(Nombre, NombreStr),
 
     ( es_jugador_local(Nombre) ->
-        _ := renderizarMano(ManoStr) 
+        _ := renderizarMano(ManoStr)
     ;
         _ := enviarManoRival(NombreStr, ManoStr)
     ).

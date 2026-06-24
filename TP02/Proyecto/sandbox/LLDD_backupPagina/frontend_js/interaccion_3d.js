@@ -86,7 +86,6 @@ window.Interaccion3D = {
                 console.log("Jugando carta:", cartaJugada);
 
                 if (window.PrologBridge && window.PrologBridge.notificarJugada) {
-                    window.inhabilitarCartas;
                     window.PrologBridge.notificarJugada(cartaJugada);
                 } else if (window.PrologBridge.resolverJugada) {
                     window.PrologBridge.resolverJugada(cartaJugada);
