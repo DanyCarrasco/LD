@@ -6,7 +6,7 @@
     jugar_mesa//0,
     jugar_mano//0,
     turno_jugador//3,
-    jugar_si_falta_carta//4,
+    jugar_si_falta_carta//5,
     resolver_canto_o_envido_en_turno//3,
     resolver_envido_en_turno//2,
     resolver_canto_en_turno//2,
@@ -152,15 +152,15 @@ jugar_mano -->
         J2 = jugador(N2, _, _)
     },
     turno_jugador(N1, Carta1, Termino1),
-    jugar_si_falta_carta(N1, Carta1, Termino1, Carta1b),
+    jugar_si_falta_carta(N1, Carta1, Termino1, Carta1b, Termino1b),
     (
-      { Termino1 == si } ->
+      { Termino1b == si } ->
         []
     ;
       turno_jugador(N2, Carta2, Termino2),
-      jugar_si_falta_carta(N2, Carta2, Termino2, Carta2b),
+      jugar_si_falta_carta(N2, Carta2, Termino2, Carta2b, Termino2b),
       (
-        { Termino2 == si } ->
+        { Termino2b == si } ->
           []
       ;
         resolver_mano_cartas([J1, J2], [Carta1b, Carta2b])
@@ -195,11 +195,11 @@ turno_jugador(Nombre, CartaJugada, TerminaRonda) -->
 
 
 % si solo canto, vuelve a pedir carta
-jugar_si_falta_carta(Nombre, Carta, Termino, CartaFinal) -->
+jugar_si_falta_carta(Nombre, Carta, Termino, CartaFinal, TerminoFinal) -->
     ( { Termino == no, Carta == sin_carta } ->
-        turno_jugador(Nombre, CartaFinal, _)
+        turno_jugador(Nombre, CartaFinal, TerminoFinal)
     ;
-        { CartaFinal = Carta }
+        { CartaFinal = Carta, TerminoFinal = Termino }
     ).
 
 
